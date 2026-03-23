@@ -35,6 +35,30 @@
 - compiled memory가 중심이 되어야 한다.
 - raw evidence는 보조 근거와 검증 용도로 쓴다.
 
+## 의사결정 질문 처리
+질문이 "무엇을 선택해야 하는가", "왜 이렇게 판단하는가" 같은 decision-oriented 요청이면 일반 retrieval만으로 끝내지 않는다.
+
+우선순위는 다음과 같다.
+
+1. 관련 `decision_playbook`
+2. 관련 `decision_rule`
+3. 관련 `value`
+4. 관련 `episodic_memory`
+5. 필요 시 supporting evidence
+
+즉 단순 취향을 가져오는 것이 아니라, 판단 절차와 과거 선택 사례를 함께 주입해야 한다.
+
+## Decision Runtime 방향
+runtime은 필요 시 다음 방식으로 답변하게 할 수 있다.
+
+- 먼저 관련 판단 축을 정리한다.
+- `decision_playbook.steps`를 순서대로 검토한다.
+- 현재 질문이 예외 조건에 해당하는지 본다.
+- 관련 `decision_trace` 또는 `episodic_memory`를 근거로 붙인다.
+- 확신이 낮으면 단정하지 않는다.
+
+이 구조는 "LLM이 숨겨진 chain-of-thought를 재현"하는 것이 아니라, 외부화된 판단 규칙과 절차를 따르게 하는 방향이다.
+
 ## Runtime 모드
 - `mirror`
 - `inspect`

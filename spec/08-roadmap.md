@@ -19,6 +19,7 @@
 - `memory_evidence` 추가
 - `session_state` 추가
 - enum 과 status 정리
+- `decision_playbook` shape 정의
 
 ## Milestone 2
 Ingest 와 Compiler
@@ -28,6 +29,7 @@ Ingest 와 Compiler
 - normalize pipeline
 - memory candidate 추출
 - compiled memory 승격
+- decision trace / playbook 추출 규칙 정리
 
 ## Milestone 3
 Runtime
@@ -37,6 +39,7 @@ Runtime
 - reranking
 - session handling
 - inspect mode 지원
+- decision-oriented prompt / retrieval 경로 추가
 
 ## Milestone 4
 MCP
@@ -50,4 +53,5 @@ MCP
 1. 실제 memory kind 기준으로 스키마를 정교화한다.
 2. `memory_evidence` 연결 구조를 정한다.
 3. 첫 retrieval contract를 정한다.
-4. MCP 서버 엔트리 포인트를 스캐폴딩한다.
+4. `decision_rule`과 `decision_playbook`의 필드 구조를 정한다.
+5. MCP 서버 엔트리 포인트를 스캐폴딩한다.

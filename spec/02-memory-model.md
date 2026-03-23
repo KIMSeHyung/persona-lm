@@ -39,6 +39,7 @@
 - `preference`
 - `interest`
 - `decision_rule`
+- `decision_playbook`
 - `self_description`
 - `value`
 - `episodic_memory`
@@ -70,6 +71,31 @@
 - 단발성 발언과 지속적 성향
 - 공개용 말투와 기본 말투
 - 일시적 기분과 오래가는 취향
+
+## 의사결정 메모리 확장
+의사결정 재현은 단순 `preference`만으로는 부족하다.
+
+최소한 다음 두 층이 필요하다.
+
+- `decision_rule`
+  - 반복적으로 드러나는 판단 기준
+  - 예: "구조 명확성을 확장성보다 우선한다"
+- `decision_playbook`
+  - 특정 도메인에서 어떤 순서와 기준으로 판단하는지 절차화한 표현
+  - 예: 아키텍처 선택 시 local-first, 운영 복잡도, 동시성 요구를 순서대로 검토
+
+## decision_playbook 필드 방향
+`decision_playbook`은 일반 memory 공통 필드 외에 다음 정보를 포함할 수 있어야 한다.
+
+- `domain`
+- `trigger`
+- `steps`
+- `tradeoffAxes`
+- `preferredOutcomes`
+- `fallbackPolicy`
+- `exceptions`
+
+이 구조는 "내면의 사고를 완전히 복제"하려는 것이 아니라, 외부에 드러난 판단 절차를 재사용 가능한 형식으로 정리하는 것을 목표로 한다.
 
 ## SessionState
 현재 대화 세션에서만 필요한 임시 메모리다.
