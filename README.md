@@ -23,12 +23,14 @@
 - SQLite + Drizzle 기본 설정
 - 초기 테이블 생성: `personas`, `evidence`, `memories`
 - 스펙 문서 정리
+- mock messenger -> evidence -> memory -> retrieval 데모 스캐폴드
+- reviewed decision seed memory 로더
 
 아직 구현되지 않은 내용:
-- ingest pipeline
-- memory compiler
-- retrieval runtime
-- MCP server
+- 실제 ingest adapter
+- 본격 memory compiler
+- DB 기반 retrieval runtime
+- MCP SDK 연결
 
 ## 문서
 - 프로젝트 스펙 진입점: [spec/README.md](./spec/README.md)

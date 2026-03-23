@@ -15,10 +15,26 @@
 3. 키워드 검색을 위한 `FTS` 인덱스
 4. 필요 시 semantic search를 위한 vector index
 
+초기 단계에서는 여기에 더해, DB 적재 전에도 사용할 수 있는 `reviewed seed memory` 레이어를 코드 상에서 허용한다.
+
+예:
+- 사람이 검토한 `decision_rule` seed
+- `decision_playbook` seed
+- `decision_trace` seed
+- `value` seed
+
+이 seed는 최종 authoritative store를 대체하는 것이 아니라, compiler가 아직 완성되지 않았을 때 runtime과 retrieval을 검증하기 위한 임시 입력 경로다.
+
 ## 현재 구현된 테이블
 - `personas`
 - `evidence`
 - `memories`
+
+## 현재 코드 레벨의 보조 저장 경로
+- `src/seeds/`
+
+이 경로에는 DB에 아직 적재하지 않은 reviewed seed memory를 코드 형태로 둘 수 있다.
+현재는 `seed`를 하나의 `sourceType`으로 사용해 in-memory compiled memory처럼 다루고 있다.
 
 ## 확장 예정 테이블
 추후 스키마는 대략 다음 방향으로 확장한다.
@@ -68,3 +84,4 @@ vector search 하나에만 의존하는 구조는 피한다.
 - evidence 링크용 join table
 - session 관련 테이블
 - retrieval에 필요한 index
+- reviewed seed를 DB로 적재하는 seed command 또는 import path

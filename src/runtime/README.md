@@ -18,6 +18,10 @@ runtime/
 - 최종 prompt context 조립
 - session state 관리
 
+## 현재 데모 기준
+- style query와 decision query를 분리해 retrieval하는 샘플 흐름이 있다.
+- reviewed seed memory를 함께 주입해 decision-oriented retrieval이 가능한 상태다.
+
 ## 이후 추가될 것
 - request classification
 - inspect mode

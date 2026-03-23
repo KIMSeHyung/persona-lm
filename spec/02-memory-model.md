@@ -40,6 +40,7 @@
 - `interest`
 - `decision_rule`
 - `decision_playbook`
+- `decision_trace`
 - `self_description`
 - `value`
 - `episodic_memory`

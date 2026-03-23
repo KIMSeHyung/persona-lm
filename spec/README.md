@@ -38,4 +38,6 @@ spec/
 - 프로젝트 초기화 완료
 - SQLite + Drizzle 기본 설정 완료
 - 초기 테이블 존재: `personas`, `evidence`, `memories`
+- mock messenger -> memory -> retrieval 데모 스캐폴드 존재
+- reviewed decision seed memory를 코드로 불러오는 경로 존재
 - memory compiler, runtime, MCP 서버는 아직 본격 구현 전
