@@ -11,6 +11,7 @@ src/
 ├── mcp/       # MCP 인터페이스 계층
 ├── memory/    # candidate / compiled memory 로직
 ├── runtime/   # retrieval, prompt, session 조립
+├── seeds/     # reviewed seed memory and fixtures
 ├── shared/    # 공통 타입과 유틸
 └── index.ts   # 현재 데모용 엔트리 포인트
 ```
@@ -25,3 +26,4 @@ src/
 - `memory/`는 compiler와 memory promotion 규칙의 중심이 된다.
 - `runtime/`은 실제 chat orchestration 계층이 된다.
 - `mcp/`는 외부 LLM이 persona data를 읽는 인터페이스가 된다.
+- `seeds/`는 수동 검토된 memory seed와 fixture를 담고, raw seed 데이터와 loader를 분리해 유지한다.

@@ -20,6 +20,7 @@
 - `session_state` 추가
 - enum 과 status 정리
 - `decision_playbook` shape 정의
+- `decision_trace` shape 정의
 
 ## Milestone 2
 Ingest 와 Compiler
@@ -30,6 +31,7 @@ Ingest 와 Compiler
 - memory candidate 추출
 - compiled memory 승격
 - decision trace / playbook 추출 규칙 정리
+- reviewed seed -> DB 적재 경로 정의
 
 ## Milestone 3
 Runtime
@@ -54,4 +56,5 @@ MCP
 2. `memory_evidence` 연결 구조를 정한다.
 3. 첫 retrieval contract를 정한다.
 4. `decision_rule`과 `decision_playbook`의 필드 구조를 정한다.
-5. MCP 서버 엔트리 포인트를 스캐폴딩한다.
+5. reviewed seed memory를 DB나 loader로 내릴 경로를 정한다.
+6. MCP 서버 엔트리 포인트를 스캐폴딩한다.

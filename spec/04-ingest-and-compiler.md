@@ -47,3 +47,16 @@ compiler는 최소한 다음을 만들어야 한다.
 - evidence link
 - confidence 와 status
 - 필요 시 사람이 읽을 수 있는 compile note
+
+## Reviewed Seed 경로
+초기 구현 단계에서는 compiler가 완성되기 전에도 사람이 검토한 결과를 `reviewed seed memory`로 프로젝트에 반영할 수 있다.
+
+예:
+- GPT 분석 결과를 사람이 검토한 뒤 `decision_rule` seed로 저장
+- `decision_playbook`, `decision_trace`, `value`를 코드 또는 JSON seed로 저장
+
+이 경로는 최종 ingest/compiler를 대체하지 않는다.
+목적은 다음 두 가지다.
+
+- runtime과 retrieval을 먼저 검증하기
+- compiler가 나중에 만들어야 할 출력 shape를 먼저 고정하기

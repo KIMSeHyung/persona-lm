@@ -31,6 +31,14 @@ export function scoreCompiledMemory(
 
   const haystackSet = new Set(haystack);
   const matchedTerms = queryTokens.filter((token) => haystackSet.has(token));
+
+  if (matchedTerms.length === 0) {
+    return {
+      score: 0,
+      matchedTerms: []
+    };
+  }
+
   const lexicalScore = matchedTerms.length * 0.35;
   const confidenceScore = Math.max(0, Math.min(memory.confidence, 1));
   const statusScore = statusWeights[memory.status];

@@ -10,6 +10,7 @@ export function formatPersonaContext(
   lines.push("[persona-core]");
   lines.push(...renderSection("style", core.styleRules));
   lines.push(...renderSection("decision", core.decisionRules));
+  lines.push(...renderSection("value", core.values));
   lines.push(...renderSection("preference", core.preferences));
   lines.push(...renderSection("self", core.selfDescriptions));
 

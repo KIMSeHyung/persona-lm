@@ -1,4 +1,11 @@
-export const sourceTypes = ["notes", "llm_chat", "sns", "messenger", "email"] as const;
+export const sourceTypes = [
+  "notes",
+  "llm_chat",
+  "sns",
+  "messenger",
+  "email",
+  "seed"
+] as const;
 export type SourceType = (typeof sourceTypes)[number];
 
 export const memoryKinds = [
@@ -6,6 +13,8 @@ export const memoryKinds = [
   "preference",
   "interest",
   "decision_rule",
+  "decision_playbook",
+  "decision_trace",
   "self_description",
   "value",
   "episodic_memory"
