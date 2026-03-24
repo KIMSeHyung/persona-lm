@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
-import { createCompiledMemory } from "../../memory/models.js";
-import type { CompiledMemory } from "../../shared/types/memory.js";
+import { createCompiledMemory } from "../../memory/models";
+import type { CompiledMemory } from "../../shared/types/memory";
 import {
   conversationDecisionPlaybookSeeds,
   conversationDecisionRuleSeeds,
@@ -13,16 +13,19 @@ import {
   systemDecisionPlaybookSeeds,
   systemDecisionRuleSeeds,
   systemDecisionTraceSeeds
-} from "./decision-seed.data.js";
+} from "./decision-seed.data";
 import type {
   DecisionPlaybookSeed,
   DecisionRuleSeed,
   DecisionTraceSeed,
   ValueSeed
-} from "./decision-seed.data.js";
+} from "./decision-seed.data";
 
-export { decisionSeedOpenQuestions } from "./decision-seed.data.js";
+export { decisionSeedOpenQuestions } from "./decision-seed.data";
 
+/**
+ * Builds the reviewed decision seed set for a persona as compiled memories.
+ */
 export function buildDecisionSeedMemories(personaId: string): CompiledMemory[] {
   return [
     ...conversationDecisionRuleSeeds.map((seed) =>
@@ -43,6 +46,9 @@ export function buildDecisionSeedMemories(personaId: string): CompiledMemory[] {
   ];
 }
 
+/**
+ * Maps a reviewed decision rule seed into the common compiled memory shape.
+ */
 function buildDecisionRuleMemory(
   personaId: string,
   seed: DecisionRuleSeed
@@ -70,6 +76,9 @@ function buildDecisionRuleMemory(
   });
 }
 
+/**
+ * Maps a reviewed decision playbook seed into a compiled memory with playbook metadata.
+ */
 function buildDecisionPlaybookMemory(
   personaId: string,
   seed: DecisionPlaybookSeed
@@ -101,6 +110,9 @@ function buildDecisionPlaybookMemory(
   });
 }
 
+/**
+ * Maps a reviewed decision trace seed into a compiled memory for retrieval and inspection.
+ */
 function buildDecisionTraceMemory(
   personaId: string,
   seed: DecisionTraceSeed
@@ -131,6 +143,9 @@ function buildDecisionTraceMemory(
   });
 }
 
+/**
+ * Maps a reviewed value seed into the common compiled memory shape.
+ */
 function buildValueMemory(personaId: string, seed: ValueSeed): CompiledMemory {
   return createCompiledMemory({
     id: createSeedId("mem", seed.summary),
@@ -155,10 +170,16 @@ function buildValueMemory(personaId: string, seed: ValueSeed): CompiledMemory {
   });
 }
 
+/**
+ * Expands playbook steps into a single retrieval-friendly text field.
+ */
 function buildPlaybookCanonicalText(seed: DecisionPlaybookSeed): string {
   return `${seed.summary} 판단 절차: ${seed.steps.join(" -> ")}`;
 }
 
+/**
+ * Generates a stable seed-backed memory id from a human-readable label.
+ */
 function createSeedId(prefix: string, label: string): string {
   const hash = createHash("sha1").update(label).digest("hex").slice(0, 16);
   return `${prefix}_${hash}`;

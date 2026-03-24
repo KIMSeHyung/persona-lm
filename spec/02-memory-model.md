@@ -56,9 +56,18 @@
 - `stability`
 - `scope`
 - `tags`
+- `sourceTypes`
+- `evidenceIds`
 - `metadata`
 - `createdAt`
 - `updatedAt`
+- `validFrom`
+- `validTo`
+
+### confidence 표현 원칙
+- runtime과 compiler 안에서는 `confidence`를 `0.0 ~ 1.0`의 실수로 다룬다.
+- SQLite에 저장할 때는 정렬과 집계를 단순하게 하기 위해 `0 ~ 1000` 정수 스케일로 변환해 저장한다.
+- 예: `0.92 -> 920`, `0.62 -> 620`
 
 ### 필수 상태값
 - `confirmed`

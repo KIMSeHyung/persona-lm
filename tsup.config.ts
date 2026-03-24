@@ -2,7 +2,8 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
   entry: {
-    index: "src/index.ts"
+    index: "src/index.ts",
+    "db/seed": "src/db/seed.ts"
   },
   format: ["esm"],
   target: "es2022",

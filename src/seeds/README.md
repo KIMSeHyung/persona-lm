@@ -24,3 +24,4 @@ seeds/
 - `*.data.ts`는 사람이 검토한 seed 데이터만 둔다.
 - loader 함수나 `CompiledMemory` 생성 로직은 별도 파일에 둔다.
 - raw seed와 runtime 전용 변환 함수를 한 파일에 섞지 않는다.
+- SQLite 적재 로직은 `src/db/seed.ts`에서 담당하고, `src/seeds/`는 reviewed seed 정의와 loader만 가진다.
