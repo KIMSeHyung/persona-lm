@@ -18,6 +18,7 @@
 ├── AGENTS.md
 ├── drizzle.config.ts
 ├── package.json
+├── tsup.config.ts
 └── tsconfig.json
 ```
 
@@ -26,6 +27,7 @@
 src/
 ├── db/
 │   ├── client.ts
+│   ├── seed.ts
 │   ├── schema.ts
 │   └── migrations/
 ├── ingest/
@@ -37,6 +39,7 @@ src/
 │   ├── models/
 │   └── scoring/
 ├── runtime/
+│   ├── config.ts
 │   ├── context/
 │   ├── retrieval/
 │   ├── prompt/
@@ -67,7 +70,9 @@ src/
 - `shared/`: 공통 타입, 유틸리티, ID 생성 등
 
 ## 현재 핵심 파일
+- `src/db/seed.ts`
 - `src/memory/models.ts`
+- `src/runtime/config.ts`
 - `src/runtime/retrieval/index.ts`
 - `src/mcp/server.ts`
 - `src/mcp/stdio.ts`
@@ -75,6 +80,5 @@ src/
 - `src/seeds/persona/decision-seed.ts`
 
 ## 가까운 시점에 추가될 가능성이 큰 파일
-- `src/db/seed.ts`
 - `src/runtime/request-classifier.ts`
 - `src/mcp/handlers/search-memories.ts`

@@ -1,4 +1,9 @@
-import { personaToolNames, type PersonaToolName } from "./tools/contracts.js";
+import { personaToolNames, type PersonaToolName } from "./tools/contracts";
+import {
+  resolvePersonaExecutionPolicy,
+  type PersonaExecutionMode,
+  type PersonaExecutionPolicy
+} from "../runtime/config";
 
 export type PersonaMcpTransport = "stdio" | "http";
 
@@ -11,17 +16,29 @@ export interface PersonaMcpServerDefinition {
   name: string;
   version: string;
   transport: PersonaMcpTransport;
+  executionMode: PersonaExecutionMode;
+  executionPolicy: PersonaExecutionPolicy;
   tools: PersonaMcpToolDefinition[];
   resources: string[];
 }
 
+export interface CreatePersonaMcpServerDefinitionInput {
+  transport?: PersonaMcpTransport;
+  mode?: PersonaExecutionMode;
+}
+
 export function createPersonaMcpServerDefinition(
-  transport: PersonaMcpTransport = "stdio"
+  input: CreatePersonaMcpServerDefinitionInput = {}
 ): PersonaMcpServerDefinition {
+  const transport = input.transport ?? "stdio";
+  const executionMode = input.mode ?? "auto";
+
   return {
     name: "persona-lm",
     version: "0.1.0",
     transport,
+    executionMode,
+    executionPolicy: resolvePersonaExecutionPolicy(executionMode),
     tools: personaToolNames.map((name) => ({
       name,
       description: describeTool(name)

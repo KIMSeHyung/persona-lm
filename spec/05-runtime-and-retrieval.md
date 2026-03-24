@@ -69,6 +69,25 @@ persona처럼 자연스럽게 답하는 기본 모드다.
 ### Inspect
 어떤 memory와 evidence가 응답에 영향을 줬는지 보여주는 모드다.
 
+## 실행 정책 모드
+runtime의 답변 스타일 모드와 별개로, tool 호출과 피드백 루프를 제어하는 실행 정책 모드를 둔다.
+
+- `dev_feedback`
+  - 사용자 피드백을 받고, 저점수일 때 추가 tool call 기반 보강을 허용한다.
+- `auto`
+  - 사용자 피드백 없이 내부 점수와 정책에 따라 제한된 tool call만 허용한다.
+- `locked`
+  - 추가 tool call을 금지하고, 미리 준비된 context만으로 답변하게 한다.
+
+초기 구현에서는 MCP 실행 arg의 `--mode` 값으로 이 정책을 고른다.
+나중에는 이 값을 내부 `execution policy`로 해석해 다음 필드로 확장할 수 있어야 한다.
+
+- `maxToolRounds`
+- `allowUserFeedback`
+- `allowRetryOnLowScore`
+- `minScoreForRetry`
+- `minConfidenceForNoTool`
+
 ## 선택 신호
 - memory kind
 - confidence

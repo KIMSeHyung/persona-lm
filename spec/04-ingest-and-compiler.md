@@ -22,7 +22,9 @@
 ## Normalize 목표
 - 사용자가 직접 쓴 텍스트인지 구분한다.
 - 타임스탬프를 보존한다.
+- raw artifact를 추적할 수 있는 상위 식별자를 보존한다.
 - source/channel 종류를 보존한다.
+- 표시용 author label과 room/thread 식별자를 보존한다.
 - 필요한 경우 참여자 정보를 보존한다.
 - evidence reference가 안정적으로 유지되게 한다.
 
@@ -46,6 +48,7 @@ compiler는 최소한 다음을 만들어야 한다.
 - compiled memory
 - evidence link
 - confidence 와 status
+- runtime 기준 `confidence(0.0 ~ 1.0)`와 SQLite 저장용 `confidence(0 ~ 1000)` 간 변환 규칙
 - 필요 시 사람이 읽을 수 있는 compile note
 
 ## Reviewed Seed 경로
@@ -60,3 +63,10 @@ compiler는 최소한 다음을 만들어야 한다.
 
 - runtime과 retrieval을 먼저 검증하기
 - compiler가 나중에 만들어야 할 출력 shape를 먼저 고정하기
+
+현재 개발 단계에서는 reviewed seed를 다음 순서로 반영한다.
+
+1. `src/seeds/` 아래의 reviewed seed를 `CompiledMemory`로 변환한다.
+2. `src/db/seed.ts`가 이 값을 SQLite `memories` row로 직렬화한다.
+3. `confidence`는 runtime float에서 SQLite 정수 스케일(`0 ~ 1000`)로 변환해 저장한다.
+4. 동일 `id`가 있으면 upsert 하고, 더 이상 존재하지 않는 seed-backed memory는 정리할 수 있어야 한다.

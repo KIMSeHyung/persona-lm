@@ -1,4 +1,4 @@
-import type { CompiledMemory } from "../../shared/types/memory.js";
+import type { CompiledMemory } from "../../shared/types/memory";
 
 const statusWeights: Record<CompiledMemory["status"], number> = {
   confirmed: 1,

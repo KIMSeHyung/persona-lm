@@ -1,5 +1,5 @@
-import type { PersonaCore } from "../context/persona-core.js";
-import type { RetrievedMemory } from "../../shared/types/memory.js";
+import type { PersonaCore } from "../context/persona-core";
+import type { RetrievedMemory } from "../../shared/types/memory";
 
 export function formatPersonaContext(
   core: PersonaCore,

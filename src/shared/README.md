@@ -5,6 +5,8 @@
 ## 현재 파일
 - `ids.ts`
   - prefix 기반 ID 생성 유틸리티
+- `utils/`
+  - confidence scale 변환 같은 공통 유틸리티
 - `types/`
   - memory 관련 공통 타입 정의
 

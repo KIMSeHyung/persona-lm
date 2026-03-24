@@ -14,6 +14,22 @@
 - pnpm
 - SQLite
 - Drizzle ORM
+- `tsx` for local execution
+- `tsup` for production bundling
+
+## 개발 중 DB 반영
+스키마를 자주 바꾸는 개발 단계에서는 `src/db/schema.ts`를 source of truth로 두고 `pnpm db:push`로 로컬 SQLite를 맞춘다.
+
+마이그레이션 파일을 본격적으로 관리하는 흐름은 스키마가 어느 정도 안정된 뒤에 도입한다.
+
+reviewed seed memory를 SQLite에 넣을 때는 `pnpm db:seed`를 사용한다.
+
+## 실행 방식
+- 개발 실행은 `node --import tsx`를 사용한다.
+- 타입체크는 `tsc --noEmit`만 사용한다.
+- 프로덕션 빌드는 `tsup`으로 번들한 뒤 plain Node로 실행한다.
+- 소스 코드의 상대 import는 확장자 없이 유지한다.
+- MCP stdio 실행은 `pnpm mcp:stdio -- --mode <dev_feedback|auto|locked>` 형태로 구분한다.
 
 ## 현재 상태
 현재는 프로젝트 bootstrap 단계다.
@@ -25,6 +41,7 @@
 - 스펙 문서 정리
 - mock messenger -> evidence -> memory -> retrieval 데모 스캐폴드
 - reviewed decision seed memory 로더
+- reviewed decision seed -> SQLite importer
 
 아직 구현되지 않은 내용:
 - 실제 ingest adapter

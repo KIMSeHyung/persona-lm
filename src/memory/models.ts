@@ -1,4 +1,4 @@
-import { createId } from "../shared/ids.js";
+import { createId } from "../shared/ids";
 import type {
   CompiledMemory,
   MemoryCandidate,
@@ -6,7 +6,7 @@ import type {
   MemoryStability,
   MemoryStatus,
   SourceType
-} from "../shared/types/memory.js";
+} from "../shared/types/memory";
 
 interface CreateMemoryCandidateInput {
   personaId: string;

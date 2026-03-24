@@ -27,3 +27,8 @@ runtime/
 - inspect mode
 - runtime policy
 - response verification
+
+## 실행 정책 방향
+- `dev_feedback`, `auto`, `locked` 같은 execution mode를 둔다.
+- 초기에는 MCP 실행 arg가 mode를 고른다.
+- 이후에는 mode를 내부 policy 객체로 해석해 tool budget, retry, feedback 수집 규칙을 세분화한다.
