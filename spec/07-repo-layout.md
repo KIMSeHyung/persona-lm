@@ -28,8 +28,10 @@
 ```text
 src/
 ├── db/
+│   ├── bootstrap.ts
 │   ├── client.ts
 │   ├── feedback.ts
+│   ├── memories.ts
 │   ├── seed.ts
 │   ├── schema.ts
 │   └── migrations/
@@ -83,6 +85,8 @@ src/
 ## 현재 핵심 파일
 - `src/db/seed.ts`
 - `src/db/feedback.ts`
+- `src/db/bootstrap.ts`
+- `src/db/memories.ts`
 - `src/memory/models.ts`
 - `src/runtime/config.ts`
 - `src/runtime/feedback/index.ts`

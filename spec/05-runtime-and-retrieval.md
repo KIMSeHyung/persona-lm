@@ -35,6 +35,29 @@
 - compiled memory가 중심이 되어야 한다.
 - raw evidence는 보조 근거와 검증 용도로 쓴다.
 
+## Long-Term Memory Read Path
+runtime이 long-term memory를 읽을 때의 기본 authoritative source는 SQLite `memories` 테이블이다.
+
+개발 단계의 reviewed decision seed도 다음 형태로 연결한다.
+
+1. reviewed seed를 importer가 SQLite `memories`에 upsert 한다.
+2. runtime은 `src/db/memories.ts`를 통해 `CompiledMemory[]`로 hydrate 한다.
+3. query retrieval이 필요하면 먼저 SQLite `memories_fts`에서 `top N` 후보를 가져온다.
+4. retrieval, persona core, feedback pipeline은 hydrate된 long-term memory를 사용한다.
+5. 최종 선택은 TypeScript scorer가 rerank 한다.
+
+즉 reviewed seed는 코드에 존재하더라도, runtime 검증 경로에서는 가능하면 in-memory 배열 직접 주입보다 SQLite read path를 우선한다.
+
+## FTS Candidate Retrieval
+long-term memory retrieval은 다음 두 단계로 나눈다.
+
+1. candidate retrieval
+   - SQLite `FTS5`로 `summary`, `canonical text`, `tags`, `scope`에서 `top N` 후보를 가져온다.
+2. rerank
+   - runtime scorer가 `confidence`, `status`, `kind weight`, lexical overlap을 섞어 최종 순위를 정한다.
+
+즉 `FTS`는 빠른 후보 검색기이고, persona에 실제로 주입할 memory를 결정하는 최종 판단기는 아니다.
+
 ## 의사결정 질문 처리
 질문이 "무엇을 선택해야 하는가", "왜 이렇게 판단하는가" 같은 decision-oriented 요청이면 일반 retrieval만으로 끝내지 않는다.
 

@@ -24,6 +24,8 @@
 마이그레이션 파일을 본격적으로 관리하는 흐름은 스키마가 어느 정도 안정된 뒤에 도입한다.
 
 reviewed seed memory를 SQLite에 넣을 때는 `pnpm db:seed`를 사용한다.
+SQLite `FTS5` 같은 support structure는 `drizzle/support/*.sql`에 두고, `pnpm db:push`가 schema push 뒤에 `db:bootstrap`까지 함께 실행한다.
+이때 `drizzle.config.ts`의 `tablesFilter`로 Drizzle 관리 대상 테이블을 제한해 support structure를 삭제 대상으로 보지 않게 한다.
 
 ## 테스트 원칙
 - 테스트 러너는 `Vitest`를 사용한다.
@@ -53,12 +55,13 @@ reviewed seed memory를 SQLite에 넣을 때는 `pnpm db:seed`를 사용한다.
 - mock messenger -> evidence -> memory -> retrieval 데모 스캐폴드
 - reviewed decision seed memory 로더
 - reviewed decision seed -> SQLite importer
+- reviewed decision seed -> SQLite runtime read path
+- SQLite `FTS5` 기반 long-term memory candidate retrieval
 - feedback pipeline scaffold와 `feedback_runs` logging
 
 아직 구현되지 않은 내용:
 - 실제 ingest adapter
 - 본격 memory compiler
-- DB 기반 retrieval runtime
 - MCP SDK 연결
 
 ## 문서

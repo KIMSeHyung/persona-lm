@@ -20,7 +20,9 @@ src/
 
 ## 현재 상태
 - `index.ts`는 실제 앱 진입점이라기보다 scaffold 검증용 샘플 흐름이다.
-- mock messenger 데이터가 들어와 memory로 변환되고, retrieval과 persona context formatting까지 이어지는 예제를 보여준다.
+- mock messenger 데이터가 들어와 memory로 변환되고, reviewed decision seed는 SQLite에 적재된 뒤 다시 읽혀 retrieval과 persona context formatting까지 이어지는 예제를 보여준다.
+- DB support migration bootstrap 이후에 long-term memory `FTS5` candidate retrieval이 동작한다.
+- long-term memory query는 SQLite `FTS5`로 `top N` 후보를 먼저 추린 뒤 runtime scorer가 다시 정렬한다.
 - feedback pipeline은 initial retrieval과 optional retry를 runtime 차원에서 실험할 수 있는 상태다.
 
 ## 앞으로의 방향

@@ -70,3 +70,4 @@ compiler는 최소한 다음을 만들어야 한다.
 2. `src/db/seed.ts`가 이 값을 SQLite `memories` row로 직렬화한다.
 3. `confidence`는 runtime float에서 SQLite 정수 스케일(`0 ~ 1000`)로 변환해 저장한다.
 4. 동일 `id`가 있으면 upsert 하고, 더 이상 존재하지 않는 seed-backed memory는 정리할 수 있어야 한다.
+5. runtime은 `src/db/memories.ts`를 통해 SQLite `memories`를 다시 읽고 long-term memory로 사용한다.
