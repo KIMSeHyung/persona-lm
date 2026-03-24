@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  buildPersonaMirrorModeDirective,
   buildPersonaMirrorCodexArgs,
   buildPersonaMirrorSessionPrompt,
   parsePersonaMirrorLauncherArgs
@@ -71,12 +72,26 @@ describe("persona mirror launcher helpers", () => {
   it("builds a session prompt from instruction text and user prompt", () => {
     const prompt = buildPersonaMirrorSessionPrompt({
       instructionText: "# Instruction\n\nmirror mode",
+      modeDirective: "## Mode\n\nfeedback",
       userPrompt: "의사결정 성향을 말해줘"
     });
 
     expect(prompt).toContain("# Instruction");
+    expect(prompt).toContain("## Mode");
     expect(prompt).toContain("의사결정 성향을 말해줘");
     expect(prompt).toContain("아래는 이번 세션의 실제 사용자 요청이다.");
+  });
+
+  it("adds a feedback-request directive in dev_feedback mode", () => {
+    const directive = buildPersonaMirrorModeDirective("dev_feedback");
+
+    expect(directive).toContain("아주 짧게 score/reason 피드백");
+    expect(directive).toContain("submit_feedback");
+  });
+
+  it("does not ask for proactive feedback outside dev_feedback mode", () => {
+    expect(buildPersonaMirrorModeDirective("locked")).not.toContain("submit_feedback");
+    expect(buildPersonaMirrorModeDirective("auto")).not.toContain("submit_feedback");
   });
 
   it("builds session-only codex args with MCP overrides", () => {

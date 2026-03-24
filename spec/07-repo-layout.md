@@ -43,6 +43,10 @@ src/
 │   ├── adapters/
 │   ├── normalizer/
 │   └── pipeline/
+├── jobs/
+│   ├── refine/
+│   ├── promote/
+│   └── ingest/
 ├── memory/
 │   ├── compiler/
 │   ├── models/
@@ -77,6 +81,7 @@ src/
 - `bin/`: 빌드된 CLI를 실행 가능한 명령으로 노출하는 thin wrapper
 - `db/`: 영속 저장소 스키마와 데이터 접근
 - `ingest/`: raw source import 와 normalize
+- `jobs/`: runtime 응답 경로와 분리된 batch / background 작업
 - `memory/`: candidate 추출과 memory compile
 - `runtime/`: query 시점 orchestration
 - `runtime/prompt/`: prompt formatting과 재사용 가능한 host instruction asset
@@ -84,6 +89,11 @@ src/
 - `mcp/`: 외부 LLM이 접근하는 인터페이스
 - `seeds/`: reviewed seed memory 와 fixture
 - `shared/`: 공통 타입, 유틸리티, ID 생성 등
+
+## 분리 원칙
+- runtime 응답 경로와 데이터 취합/정제 경로는 장기적으로 분리한다.
+- `MCP`는 persona data read/write interface로 유지하고, 무거운 batch refinement는 `jobs/` 계층으로 뺀다.
+- 초기에는 같은 repo 안의 별도 CLI/worker entry로 시작하고, 필요해질 때만 long-running local service나 containerized service로 확장한다.
 
 ## 테스트 계약
 - 모든 코드 변경과 신규 기능은 관련 테스트를 먼저 추가하거나 기존 테스트를 먼저 갱신해야 한다.
@@ -112,3 +122,5 @@ src/
 - `src/runtime/request-classifier.ts`
 - `src/mcp/handlers/search-memories.ts`
 - `src/mcp/handlers/persona-core.ts`
+- `src/jobs/refine/index.ts`
+- `src/jobs/promote/index.ts`

@@ -46,6 +46,25 @@ export interface CreatePersonaMcpSdkServerInput
   defaultPersonaId?: string;
 }
 
+/**
+ * Builds MCP server instructions for the active execution mode.
+ */
+export function buildPersonaMcpServerInstructions(
+  mode: PersonaExecutionMode
+): string {
+  const baseInstruction =
+    "Use compiled persona memory as the primary context source. Prefer structured memory retrieval over raw evidence. For decision, preference, and value questions, call get_decision_context before answering. When a conversation unit reveals durable persona insight, save it with save_session_memories instead of waiting only for session end.";
+
+  switch (mode) {
+    case "dev_feedback":
+      return `${baseInstruction} If answer quality seems weak because memory hits are sparse, conflicting, or low-confidence, ask briefly for feedback and use submit_feedback when the user provides it.`;
+    case "auto":
+      return `${baseInstruction} Do not proactively ask the user for feedback; rely on internal retrieval confidence and policy instead.`;
+    case "locked":
+      return `${baseInstruction} Do not start an extra feedback loop; answer using the currently available context only.`;
+  }
+}
+
 export function createPersonaMcpServerDefinition(
   input: CreatePersonaMcpServerDefinitionInput = {}
 ): PersonaMcpServerDefinition {
@@ -109,14 +128,14 @@ export function createPersonaMcpSdkServer(
 ): McpServer {
   const definition = createPersonaMcpServerDefinition(input);
   const context = createPersonaMcpHandlerContext(input);
+  const mode = input.mode ?? "auto";
   const server = new McpServer(
     {
       name: definition.name,
       version: definition.version
     },
     {
-      instructions:
-        "Use compiled persona memory as the primary context source. Prefer structured memory retrieval over raw evidence. For decision, preference, and value questions, call get_decision_context before answering. When a conversation unit reveals durable persona insight, save it with save_session_memories instead of waiting only for session end."
+      instructions: buildPersonaMcpServerInstructions(mode)
     }
   );
 

@@ -5,6 +5,7 @@ import { spawn } from "node:child_process";
 
 import {
   buildPersonaMirrorCodexArgs,
+  buildPersonaMirrorModeDirective,
   buildPersonaMirrorSessionPrompt,
   parsePersonaMirrorLauncherArgs
 } from "./persona-mirror-launcher";
@@ -23,6 +24,7 @@ export async function runPersonaMirrorLauncher(args: string[]): Promise<number> 
   const instructionText = readFileSync(instructionPath, "utf8");
   const prompt = buildPersonaMirrorSessionPrompt({
     instructionText,
+    modeDirective: buildPersonaMirrorModeDirective(parsed.mode),
     userPrompt: parsed.prompt
   });
   const codexArgs = buildPersonaMirrorCodexArgs({

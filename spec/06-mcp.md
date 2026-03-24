@@ -122,6 +122,12 @@ MCP server description이나 instructions는 persona memory 우선 사용을 유
 3. raw evidence보다 compiled memory를 먼저 근거로 삼게 한다.
 4. 사용된 rule/playbook/trace id는 inspect나 feedback log에 남긴다.
 
+`dev_feedback` 실행 모드에서는 다음 원칙을 추가한다.
+
+1. 답변 품질이 충분하다고 보이면 불필요하게 피드백을 요청하지 않는다.
+2. memory hit가 약하거나, 상충 memory가 있거나, 낮은 확신으로 답하는 경우에는 짧은 점수/이유 피드백을 요청할 수 있다.
+3. 피드백을 받으면 `submit_feedback`로 기록하고 retry 판단에 사용한다.
+
 세션 memory 저장을 허용할 때는 다음 원칙을 추가한다.
 
 1. `save_session_memories`는 매 턴마다 호출하지 않는다.
