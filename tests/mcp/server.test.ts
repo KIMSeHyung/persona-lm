@@ -11,6 +11,7 @@ describe("createPersonaMcpServerDefinition", () => {
     expect(server.executionPolicy.maxToolRounds).toBe(1);
     expect(server.tools.map((tool) => tool.name)).toEqual([
       "search_memories",
+      "get_decision_context",
       "get_memory_evidence",
       "get_persona_core",
       "get_session_summary",

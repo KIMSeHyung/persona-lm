@@ -124,6 +124,16 @@ runtime의 답변 스타일 모드와 별개로, tool 호출과 피드백 루프
 5. 마지막 attempt를 최종 context로 채택한다.
 6. 전체 run을 SQLite `feedback_runs`에 기록한다.
 
+## Decision Context 조립
+decision, preference, value 질문은 여러 개의 작은 retrieval을 호스트가 직접 조합하는 것보다, 한 번의 decision context 조립으로 묶는 편이 안정적이다.
+
+기본 방향은 다음과 같다.
+
+1. `persona core`를 항상 함께 가져온다.
+2. query와 관련된 `decision_playbook`, `decision_rule`, `decision_trace`, `value`를 우선 retrieval한다.
+3. retrieval 결과가 비어 있으면 최소한의 rule/value/playbook은 high-confidence fallback으로 보강할 수 있다.
+4. 최종 답변 전에는 이 묶음을 inspect 가능한 구조로 유지한다.
+
 이 구조의 목적은 다음 두 가지다.
 
 - 사용자 응답 품질을 즉시 보강하기

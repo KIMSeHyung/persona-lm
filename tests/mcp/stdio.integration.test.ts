@@ -201,6 +201,7 @@ describe("MCP stdio server integration", () => {
 
     expect(result.tools.map((tool) => tool.name)).toEqual([
       "search_memories",
+      "get_decision_context",
       "get_memory_evidence",
       "get_persona_core",
       "get_session_summary",
@@ -208,12 +209,18 @@ describe("MCP stdio server integration", () => {
     ]);
   });
 
-  it("serves DB-backed memory search and persona core tools", async () => {
+  it("serves DB-backed memory search, decision context, and persona core tools", async () => {
     const searchResult = await mcpClient.callTool({
       name: "search_memories",
       arguments: {
         query: "동시성 락 idempotency",
         topK: 3
+      }
+    });
+    const decisionContextResult = await mcpClient.callTool({
+      name: "get_decision_context",
+      arguments: {
+        query: "콘텐츠 버전 관리 복구"
       }
     });
     const coreResult = await mcpClient.callTool({
@@ -228,6 +235,32 @@ describe("MCP stdio server integration", () => {
           summary: "동시성 위험과 중복 실행 비용을 기능보다 먼저 본다"
         })
       ])
+    });
+    expect(decisionContextResult.isError).not.toBe(true);
+    expect(decisionContextResult.structuredContent).toMatchObject({
+      personaId: "persona_demo",
+      query: "콘텐츠 버전 관리 복구",
+      personaCore: {
+        decisionRules: expect.any(Array),
+        values: expect.any(Array)
+      },
+      playbooks: expect.arrayContaining([
+        expect.objectContaining({
+          summary:
+            "콘텐츠나 외부 원본과의 동기화 문제에서는 덮어쓰기보다 상태 비교, 버전 생성, 단계적 반영을 우선하는 절차가 보인다."
+        })
+      ]),
+      rules: expect.arrayContaining([
+        expect.objectContaining({
+          summary: "현재값보다 이력과 복구 가능성을 우선한다"
+        })
+      ]),
+      values: expect.arrayContaining([
+        expect.objectContaining({
+          summary: "이력 보존과 복구 가능성을 우선한다"
+        })
+      ]),
+      usedMemoryIds: expect.any(Array)
     });
     expect(coreResult.isError).not.toBe(true);
     expect(coreResult.structuredContent).toMatchObject({

@@ -2,11 +2,13 @@ import type {
   FeedbackReason,
   FeedbackRetryReason
 } from "../../runtime/feedback/index";
+import type { DecisionContext } from "../../runtime/context/decision-context";
 import type { PersonaCore } from "../../runtime/context/persona-core";
 import type { MemoryKind } from "../../shared/types/memory";
 
 export const personaToolNames = [
   "search_memories",
+  "get_decision_context",
   "get_memory_evidence",
   "get_persona_core",
   "get_session_summary",
@@ -32,6 +34,13 @@ export interface SearchMemoriesResult extends Record<string, unknown> {
     matchedTerms: string[];
   }>;
 }
+
+export interface GetDecisionContextInput {
+  personaId?: string;
+  query: string;
+}
+
+export type GetDecisionContextResult = DecisionContext;
 
 export interface GetPersonaCoreInput {
   personaId?: string;
