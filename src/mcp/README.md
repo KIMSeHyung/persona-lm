@@ -15,6 +15,7 @@ mcp/
 - 실제 MCP SDK 연결은 아직 없다.
 - 대신 어떤 tool/resource를 노출할지에 대한 구조만 스캐폴드해둔 상태다.
 - `stdio` 실행 시 `--mode` arg로 execution policy를 고를 수 있다.
+- feedback pipeline을 위해 `submit_feedback` tool contract를 함께 유지한다.
 
 ## 이후 추가될 것
 - MCP SDK 연결

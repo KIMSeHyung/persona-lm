@@ -4,7 +4,7 @@
 
 ## 현재 파일
 - `contracts.ts`
-  - `search_memories`, `get_memory_evidence`, `get_persona_core`, `get_session_summary`의 기본 이름과 타입을 정의한다.
+  - `search_memories`, `get_memory_evidence`, `get_persona_core`, `get_session_summary`, `submit_feedback`의 기본 이름과 타입을 정의한다.
 
 ## 역할
 - tool 이름 고정

@@ -53,6 +53,7 @@ reviewed seed memory를 SQLite에 넣을 때는 `pnpm db:seed`를 사용한다.
 - mock messenger -> evidence -> memory -> retrieval 데모 스캐폴드
 - reviewed decision seed memory 로더
 - reviewed decision seed -> SQLite importer
+- feedback pipeline scaffold와 `feedback_runs` logging
 
 아직 구현되지 않은 내용:
 - 실제 ingest adapter

@@ -29,6 +29,7 @@
 - `personas`
 - `evidence`
 - `memories`
+- `feedback_runs`
 
 ## 현재 `personas` 테이블
 - `id`
@@ -115,6 +116,44 @@
   - 이 memory의 유효 종료 시각이다.
   - 현재도 유효하면 `NULL`이다.
 
+## 현재 `feedback_runs` 테이블
+- `id`
+  - 하나의 피드백 파이프라인 실행을 식별하는 안정적인 id다.
+- `persona_id`
+  - 이 feedback run이 속한 persona 식별자다.
+- `session_id`
+  - 세션이 있는 경우 현재 대화 세션 식별자를 저장한다.
+  - 세션 맥락이 없으면 `NULL`을 허용한다.
+- `mode`
+  - 실행 정책 모드다.
+  - `dev_feedback`, `auto`, `locked` 중 하나를 사용한다.
+- `query`
+  - 사용자의 원본 질의다.
+- `decision_query`
+  - 이 질의가 decision-oriented query로 분류되었는지 나타낸다.
+- `feedback_score`
+  - 사용자가 준 피드백 점수다.
+  - SQLite에서는 `0 ~ 1000` 정수 스케일을 사용하고, 피드백이 없으면 `NULL`이다.
+- `feedback_reason`
+  - 낮은 점수의 주된 이유를 저장한다.
+  - 예: `missing_memory`, `wrong_priority`, `too_confident`, `style_mismatch`, `other`
+- `missing_aspect`
+  - 사용자가 빠졌다고 본 관점이나 키워드를 저장한다.
+- `retry_triggered`
+  - 피드백이나 낮은 retrieval confidence 때문에 추가 보강 시도가 있었는지 나타낸다.
+- `retry_reason`
+  - retry가 일어난 직접 이유를 저장한다.
+  - 예: `user_feedback`, `low_confidence`
+- `attempt_count`
+  - initial attempt를 포함한 전체 retrieval 시도 횟수다.
+- `final_attempt_number`
+  - 최종 응답 구성에 채택된 attempt 번호다.
+- `metadata_json`
+  - 각 attempt의 query, strategy, retrieved memory id/score 목록, note를 JSON 문자열로 저장한다.
+  - offline scorer tuning과 replay inspect의 원본 로그 역할을 한다.
+- `created_at`
+  - feedback run이 기록된 시각이다.
+
 ## 현재 코드 레벨의 보조 저장 경로
 - `src/seeds/`
 - `src/db/seed.ts`
@@ -131,6 +170,7 @@
 - `evidence`
 - `memory_candidates`
 - `memories`
+- `feedback_runs`
 - `memory_evidence`
 - `session_state`
 - `sessions`
@@ -175,4 +215,4 @@ vector search 하나에만 의존하는 구조는 피한다.
 - evidence 링크용 join table
 - session 관련 테이블
 - retrieval에 필요한 index
-- reviewed seed를 DB로 적재하는 seed command 또는 import path
+- feedback run 요약/통계용 read repository

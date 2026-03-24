@@ -29,6 +29,7 @@
 src/
 ├── db/
 │   ├── client.ts
+│   ├── feedback.ts
 │   ├── seed.ts
 │   ├── schema.ts
 │   └── migrations/
@@ -43,6 +44,8 @@ src/
 ├── runtime/
 │   ├── config.ts
 │   ├── context/
+│   ├── feedback/
+│   ├── judgment/
 │   ├── retrieval/
 │   ├── prompt/
 │   └── session/
@@ -79,8 +82,11 @@ src/
 
 ## 현재 핵심 파일
 - `src/db/seed.ts`
+- `src/db/feedback.ts`
 - `src/memory/models.ts`
 - `src/runtime/config.ts`
+- `src/runtime/feedback/index.ts`
+- `src/runtime/judgment/index.ts`
 - `src/runtime/retrieval/index.ts`
 - `src/mcp/server.ts`
 - `src/mcp/stdio.ts`

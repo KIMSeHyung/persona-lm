@@ -61,5 +61,7 @@ function describeTool(name: PersonaToolName): string {
       return "Return the compact core persona context.";
     case "get_session_summary":
       return "Return the current session summary.";
+    case "submit_feedback":
+      return "Store user feedback for a run and report whether the feedback pipeline triggered a retry.";
   }
 }

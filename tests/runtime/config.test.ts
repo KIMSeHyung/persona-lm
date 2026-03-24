@@ -11,17 +11,20 @@ describe("runtime execution config", () => {
       mode: "dev_feedback",
       maxToolRounds: 2,
       allowUserFeedback: true,
-      allowRetryOnLowScore: true
+      allowRetryOnLowScore: true,
+      minFeedbackScoreForAcceptance: 0.7
     });
     expect(resolvePersonaExecutionPolicy("auto")).toMatchObject({
       mode: "auto",
       maxToolRounds: 1,
-      allowUserFeedback: false
+      allowUserFeedback: false,
+      minFeedbackScoreForAcceptance: 0.8
     });
     expect(resolvePersonaExecutionPolicy("locked")).toMatchObject({
       mode: "locked",
       maxToolRounds: 0,
-      allowRetryOnLowScore: false
+      allowRetryOnLowScore: false,
+      minFeedbackScoreForAcceptance: 1
     });
   });
 

@@ -13,7 +13,8 @@ describe("createPersonaMcpServerDefinition", () => {
       "search_memories",
       "get_memory_evidence",
       "get_persona_core",
-      "get_session_summary"
+      "get_session_summary",
+      "submit_feedback"
     ]);
   });
 
