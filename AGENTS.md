@@ -38,6 +38,7 @@ Read these files in order before making architectural changes:
 - Keep `src/db/schema.ts` aligned with `spec/03-storage-and-schema.md`.
 - For every code change or new feature, add or update the relevant tests before or alongside the implementation.
 - Treat missing tests as unfinished work, not as optional follow-up.
+- Always assign pull requests to `KIMSeHyung`.
 - Avoid introducing Docker, MySQL, or remote-first assumptions unless the spec explicitly changes.
 
 ## Current Repo Map
