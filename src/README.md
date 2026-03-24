@@ -16,6 +16,8 @@ src/
 └── index.ts   # 현재 데모용 엔트리 포인트
 ```
 
+구현 테스트는 루트 `tests/` 아래에서 `src/` 구조를 따라 대응시킨다.
+
 ## 현재 상태
 - `index.ts`는 실제 앱 진입점이라기보다 scaffold 검증용 샘플 흐름이다.
 - mock messenger 데이터가 들어와 memory로 변환되고, retrieval과 persona context formatting까지 이어지는 예제를 보여준다.
