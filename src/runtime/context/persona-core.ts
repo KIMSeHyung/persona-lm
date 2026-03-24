@@ -1,4 +1,4 @@
-import type { CompiledMemory } from "../../shared/types/memory.js";
+import type { CompiledMemory } from "../../shared/types/memory";
 
 export interface PersonaCore {
   styleRules: string[];

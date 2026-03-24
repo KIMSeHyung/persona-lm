@@ -1,14 +1,14 @@
-import { dbPath } from "./db/client.js";
-import { buildMockMessengerEvidence } from "./ingest/pipeline/index.js";
-import { compileMemoryCandidatesFromEvidence, promoteCandidates } from "./memory/compiler/index.js";
-import { createPersonaMcpServerDefinition } from "./mcp/server.js";
-import { buildPersonaCore } from "./runtime/context/persona-core.js";
-import { formatPersonaContext } from "./runtime/prompt/index.js";
-import { retrieveRelevantMemories } from "./runtime/retrieval/index.js";
+import { dbPath } from "./db/client";
+import { buildMockMessengerEvidence } from "./ingest/pipeline/index";
+import { compileMemoryCandidatesFromEvidence, promoteCandidates } from "./memory/compiler/index";
+import { createPersonaMcpServerDefinition } from "./mcp/server";
+import { buildPersonaCore } from "./runtime/context/persona-core";
+import { formatPersonaContext } from "./runtime/prompt/index";
+import { retrieveRelevantMemories } from "./runtime/retrieval/index";
 import {
   buildDecisionSeedMemories,
   decisionSeedOpenQuestions
-} from "./seeds/persona/decision-seed.js";
+} from "./seeds/persona/decision-seed";
 
 const personaId = "persona_demo";
 const evidenceUnits = buildMockMessengerEvidence(personaId);

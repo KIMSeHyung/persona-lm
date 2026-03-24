@@ -1,4 +1,4 @@
-import type { MemoryStatus, SourceType } from "../../shared/types/memory.js";
+import type { MemoryStatus, SourceType } from "../../shared/types/memory";
 
 export interface SeedEvidence {
   quote: string;

@@ -1,9 +1,9 @@
-import { createMemoryCandidate, promoteCandidateToMemory } from "../models.js";
+import { createMemoryCandidate, promoteCandidateToMemory } from "../models";
 import type {
   CompiledMemory,
   MemoryCandidate,
   NormalizedEvidenceUnit
-} from "../../shared/types/memory.js";
+} from "../../shared/types/memory";
 
 export function compileMemoryCandidatesFromEvidence(
   evidenceUnits: NormalizedEvidenceUnit[]

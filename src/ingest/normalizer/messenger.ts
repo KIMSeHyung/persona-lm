@@ -1,6 +1,6 @@
-import { createId } from "../../shared/ids.js";
-import type { NormalizedEvidenceUnit } from "../../shared/types/memory.js";
-import type { MockMessengerArtifact } from "../adapters/messenger.mock.js";
+import { createId } from "../../shared/ids";
+import type { NormalizedEvidenceUnit } from "../../shared/types/memory";
+import type { MockMessengerArtifact } from "../adapters/messenger.mock";
 
 export function normalizeMockMessengerArtifact(
   artifact: MockMessengerArtifact,

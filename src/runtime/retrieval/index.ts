@@ -1,5 +1,5 @@
-import { scoreCompiledMemory } from "../../memory/scoring/index.js";
-import type { CompiledMemory, RetrievedMemory } from "../../shared/types/memory.js";
+import { scoreCompiledMemory } from "../../memory/scoring/index";
+import type { CompiledMemory, RetrievedMemory } from "../../shared/types/memory";
 
 interface RetrieveRelevantMemoriesInput {
   query: string;
