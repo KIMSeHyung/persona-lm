@@ -4,12 +4,32 @@ import path from "node:path";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 
-const dataDir = path.resolve(process.cwd(), "data");
-const dbPath = path.join(dataDir, "persona.db");
+export interface PersonaDatabaseClient {
+  db: ReturnType<typeof drizzle>;
+  sqlite: Database.Database;
+  dbPath: string;
+}
 
-mkdirSync(dataDir, { recursive: true });
+/**
+ * Creates a SQLite-backed Drizzle client rooted at a given workspace directory.
+ */
+export function createDatabaseClient(rootDir: string = process.cwd()): PersonaDatabaseClient {
+  const dataDir = path.resolve(rootDir, "data");
+  const dbPath = path.join(dataDir, "persona.db");
 
-const sqlite = new Database(dbPath);
+  mkdirSync(dataDir, { recursive: true });
 
-export const db = drizzle(sqlite);
-export { dbPath, sqlite };
+  const sqlite = new Database(dbPath);
+
+  return {
+    db: drizzle(sqlite),
+    sqlite,
+    dbPath
+  };
+}
+
+const defaultDatabaseClient = createDatabaseClient();
+
+export const db = defaultDatabaseClient.db;
+export const sqlite = defaultDatabaseClient.sqlite;
+export const dbPath = defaultDatabaseClient.dbPath;

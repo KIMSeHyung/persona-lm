@@ -11,6 +11,7 @@ The goal is a grounded, inspectable, "this feels like me" runtime built from com
 - pnpm
 - SQLite
 - Drizzle ORM
+- Vitest
 
 ## Source Of Truth
 Read these files in order before making architectural changes:
@@ -35,6 +36,8 @@ Read these files in order before making architectural changes:
 - Always update the relevant spec, documentation, or contract files before implementing the code change that depends on them.
 - If code and spec diverge, bring the spec/contract up to date first, then apply the implementation change.
 - Keep `src/db/schema.ts` aligned with `spec/03-storage-and-schema.md`.
+- For every code change or new feature, add or update the relevant tests before or alongside the implementation.
+- Treat missing tests as unfinished work, not as optional follow-up.
 - Avoid introducing Docker, MySQL, or remote-first assumptions unless the spec explicitly changes.
 
 ## Current Repo Map
@@ -46,6 +49,7 @@ Read these files in order before making architectural changes:
 ├── drizzle.config.ts
 ├── package.json
 ├── spec/
+├── tests/
 ├── src/
 │   ├── db/
 │   ├── ingest/

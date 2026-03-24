@@ -4,7 +4,7 @@ import { parseArgs } from "node:util";
 
 import { and, eq, inArray, like, notInArray } from "drizzle-orm";
 
-import { db, dbPath } from "./client";
+import { db, dbPath, type PersonaDatabaseClient } from "./client";
 import { memories, personas } from "./schema";
 import {
   buildDecisionSeedMemories,
@@ -21,6 +21,7 @@ interface ImportDecisionSeedMemoriesInput {
   slug?: string;
   displayName?: string;
   description?: string | null;
+  client?: PersonaDatabaseClient;
 }
 
 interface ImportDecisionSeedMemoriesResult {
@@ -37,6 +38,7 @@ export function importDecisionSeedMemories(
   input: ImportDecisionSeedMemoriesInput
 ): ImportDecisionSeedMemoriesResult {
   const personaId = input.personaId;
+  const database = input.client?.db ?? db;
   const now = Date.now();
   const personaRow = {
     id: personaId,
@@ -51,7 +53,7 @@ export function importDecisionSeedMemories(
   );
   const importedIds = memoryRows.map((row) => row.id);
 
-  return db.transaction((tx) => {
+  return database.transaction((tx) => {
     tx.insert(personas)
       .values(personaRow)
       .onConflictDoUpdate({

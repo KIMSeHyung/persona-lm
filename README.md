@@ -14,6 +14,7 @@
 - pnpm
 - SQLite
 - Drizzle ORM
+- Vitest
 - `tsx` for local execution
 - `tsup` for production bundling
 
@@ -24,12 +25,22 @@
 
 reviewed seed memory를 SQLite에 넣을 때는 `pnpm db:seed`를 사용한다.
 
+## 테스트 원칙
+- 테스트 러너는 `Vitest`를 사용한다.
+- 도메인별, 기능별 테스트는 `tests/` 아래에서 코드 구조를 따라 분리한다.
+- 모든 코드 변경과 신규 기능은 관련 테스트를 먼저 추가하거나 기존 테스트를 먼저 갱신한 뒤 구현한다.
+- 테스트가 빠진 기능 변경은 완료로 보지 않는다.
+
 ## 실행 방식
 - 개발 실행은 `node --import tsx`를 사용한다.
 - 타입체크는 `tsc --noEmit`만 사용한다.
 - 프로덕션 빌드는 `tsup`으로 번들한 뒤 plain Node로 실행한다.
 - 소스 코드의 상대 import는 확장자 없이 유지한다.
 - MCP stdio 실행은 `pnpm mcp:stdio -- --mode <dev_feedback|auto|locked>` 형태로 구분한다.
+
+## 테스트 실행
+- `pnpm test`
+- `pnpm test:run`
 
 ## 현재 상태
 현재는 프로젝트 bootstrap 단계다.

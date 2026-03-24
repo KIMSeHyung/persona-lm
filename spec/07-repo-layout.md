@@ -6,6 +6,7 @@
 ├── data/
 ├── drizzle/
 ├── spec/
+├── tests/
 ├── src/
 │   ├── db/
 │   ├── ingest/
@@ -19,6 +20,7 @@
 ├── drizzle.config.ts
 ├── package.json
 ├── tsup.config.ts
+├── vitest.config.ts
 └── tsconfig.json
 ```
 
@@ -61,6 +63,7 @@ src/
 ```
 
 ## 디렉터리 책임
+- `tests/`: 도메인별, 기능별 Vitest 테스트
 - `db/`: 영속 저장소 스키마와 데이터 접근
 - `ingest/`: raw source import 와 normalize
 - `memory/`: candidate 추출과 memory compile
@@ -68,6 +71,11 @@ src/
 - `mcp/`: 외부 LLM이 접근하는 인터페이스
 - `seeds/`: reviewed seed memory 와 fixture
 - `shared/`: 공통 타입, 유틸리티, ID 생성 등
+
+## 테스트 계약
+- 모든 코드 변경과 신규 기능은 관련 테스트를 먼저 추가하거나 기존 테스트를 먼저 갱신해야 한다.
+- 테스트는 `src/` 구조를 따라 `tests/` 아래에 배치한다.
+- 구현만 바뀌고 테스트가 비어 있으면 작업이 완료된 것으로 보지 않는다.
 
 ## 현재 핵심 파일
 - `src/db/seed.ts`
