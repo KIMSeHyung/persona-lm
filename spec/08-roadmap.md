@@ -69,3 +69,9 @@ MCP
 14. session memory용 summary normalization을 도입해 표면적인 문장 차이 때문에 memory가 분리되지 않게 한다.
 15. semantic duplicate merge를 도입해 의미상 같은 memory를 자동 병합한다.
 16. contradiction detection을 도입해 상충 memory를 자동 약화하거나 review 대상으로 보낸다.
+17. `stability`를 retrieval rerank 신호에 반영해 `hypothesis/emerging` memory가 과도하게 상위에 뜨지 않게 한다.
+18. `feedback_runs`를 기반으로 `scoring_patch_candidate`를 만드는 offline scorer review batch를 도입한다.
+19. scorer weight와 memory state 보강을 분리한 inspect/eval 흐름을 정리해, ranking 문제와 memory 품질 문제를 따로 튜닝할 수 있게 한다.
+20. raw conversation/evidence 취합과 memory 정제를 runtime 응답 경로에서 분리한 `refine`/`jobs` 레이어를 도입한다.
+21. `personalm refine`, `personalm promote`, `personalm ingest` 같은 batch CLI를 추가해 로컬에서 수동/주기 실행 가능한 정제 파이프라인을 만든다.
+22. 필요해지면 위 batch 경로를 long-running local worker나 containerized service로 확장하되, `MCP`와 background refinement 책임은 분리한다.

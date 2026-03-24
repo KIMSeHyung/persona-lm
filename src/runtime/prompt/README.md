@@ -12,6 +12,7 @@
   - `PERSONALM_HOME`이 없으면 `personalm`을 실행한 현재 셸 디렉터리를 backend root로도 같이 사용한다.
 - `persona-mirror.instructions.md`
   - Codex CLI나 다른 호스트가 그대로 주입할 수 있는 mirror 모드용 persona instruction 초안이다.
+  - launcher는 여기에 execution mode별 추가 지시를 덧붙여 `dev_feedback`, `auto`, `locked` 차이를 만든다.
 
 ## 역할
 - prompt assembly

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { createPersonaMcpServerDefinition } from "../../src/mcp/server";
+import {
+  buildPersonaMcpServerInstructions,
+  createPersonaMcpServerDefinition
+} from "../../src/mcp/server";
 
 describe("createPersonaMcpServerDefinition", () => {
   it("creates the default stdio server definition in auto mode", () => {
@@ -32,5 +35,11 @@ describe("createPersonaMcpServerDefinition", () => {
     expect(server.transport).toBe("http");
     expect(server.executionMode).toBe("locked");
     expect(server.executionPolicy.maxToolRounds).toBe(0);
+  });
+
+  it("adds feedback-request guidance only in dev_feedback mode", () => {
+    expect(buildPersonaMcpServerInstructions("dev_feedback")).toContain("ask briefly for feedback");
+    expect(buildPersonaMcpServerInstructions("locked")).not.toContain("ask briefly for feedback");
+    expect(buildPersonaMcpServerInstructions("auto")).not.toContain("ask briefly for feedback");
   });
 });
