@@ -173,8 +173,9 @@ function nullableIsoStringToDate(isoString: string | null): Date | null {
  * Runs the importer as a small CLI entry point for local development.
  */
 function runCli(): void {
+  const normalizedArgs = process.argv[2] === "--" ? process.argv.slice(3) : process.argv.slice(2);
   const { values } = parseArgs({
-    args: process.argv.slice(2),
+    args: normalizedArgs,
     options: {
       persona: {
         type: "string",
