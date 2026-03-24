@@ -3,6 +3,7 @@
 ## 현재 구조
 ```text
 .
+├── bin/
 ├── data/
 ├── drizzle/
 ├── spec/
@@ -15,6 +16,7 @@
 │   ├── runtime/
 │   ├── seeds/
 │   ├── shared/
+│   ├── cli.ts
 │   └── index.ts
 ├── AGENTS.md
 ├── drizzle.config.ts
@@ -27,6 +29,7 @@
 ## 목표 구조
 ```text
 src/
+├── cli.ts
 ├── db/
 │   ├── bootstrap.ts
 │   ├── client.ts
@@ -71,11 +74,13 @@ src/
 
 ## 디렉터리 책임
 - `tests/`: 도메인별, 기능별 Vitest 테스트
+- `bin/`: 빌드된 CLI를 실행 가능한 명령으로 노출하는 thin wrapper
 - `db/`: 영속 저장소 스키마와 데이터 접근
 - `ingest/`: raw source import 와 normalize
 - `memory/`: candidate 추출과 memory compile
 - `runtime/`: query 시점 orchestration
 - `runtime/prompt/`: prompt formatting과 재사용 가능한 host instruction asset
+  - session-scoped launcher는 workspace root와 persona backend root를 분리해 다른 프로젝트에서도 `personalm`을 사용할 수 있어야 한다.
 - `mcp/`: 외부 LLM이 접근하는 인터페이스
 - `seeds/`: reviewed seed memory 와 fixture
 - `shared/`: 공통 타입, 유틸리티, ID 생성 등
@@ -86,6 +91,7 @@ src/
 - 구현만 바뀌고 테스트가 비어 있으면 작업이 완료된 것으로 보지 않는다.
 
 ## 현재 핵심 파일
+- `src/cli.ts`
 - `src/db/seed.ts`
 - `src/db/feedback.ts`
 - `src/db/bootstrap.ts`

@@ -21,7 +21,7 @@ mcp/
 - Codex CLI용 stdio command는 `node --import tsx src/mcp/stdio.ts --mode <mode>`를 사용한다.
 - `pnpm mcp:stdio`는 `stdout` 배너 때문에 Codex MCP handshaking command로 사용하지 않는다.
 - decision 질문에서는 `search_memories` 여러 번보다 `get_decision_context(query)` 같은 상위 tool을 우선한다.
-- 세션 종료 직전이나 명시적 요청이 있을 때만 `save_session_memories`를 호출해 durable한 memory를 남긴다.
+- 세션 종료만 기다리지 않고, durable한 대화 단위가 끝났다고 판단되면 `save_session_memories`를 호출해 memory를 남긴다.
 
 ## 이후 추가될 것
 - richer tool handler 구현

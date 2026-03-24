@@ -125,9 +125,18 @@ MCP server description이나 instructions는 persona memory 우선 사용을 유
 세션 memory 저장을 허용할 때는 다음 원칙을 추가한다.
 
 1. `save_session_memories`는 매 턴마다 호출하지 않는다.
-2. 사용자가 명시적으로 요청했거나 세션 종료 직전일 때만 호출한다.
-3. 현재 대화에서 반복되거나 장기적으로 유효한 성향만 저장 대상으로 본다.
-4. 저장 시 바로 강한 사실처럼 다루지 않고, 기본적으로 `hypothesis` / `emerging` 상태로 둔다.
+2. 세션 종료 시점만 기다리지 않고, 하나의 대화 단위에서 durable insight가 충분히 드러났다면 그 시점에 호출하는 것을 기본 동작으로 본다.
+3. 사용자가 명시적으로 요청했을 때도 호출할 수 있다.
+4. 현재 대화에서 반복되거나 장기적으로 유효한 성향만 저장 대상으로 본다.
+5. 저장할 durable한 내용이 없으면 호출하지 않는다.
+6. 사용자가 저장하지 말라고 한 경우에는 호출하지 않는다.
+7. 저장 시 바로 강한 사실처럼 다루지 않고, 기본적으로 `hypothesis` / `emerging` 상태로 둔다.
+
+Codex CLI용 session-scoped launcher를 둘 때는 작업 프로젝트와 persona backend의 경로를 분리한다.
+
+- Codex가 실제로 열릴 작업 디렉터리는 launcher의 `-C` 같은 workspace 인자로 받는다.
+- `persona-lm` backend와 instruction asset 경로는 `PERSONALM_HOME` 환경변수나 별도 backend root 설정으로 받는다.
+- 다른 프로젝트에서 `personalm mirror ...`를 실행해도, MCP backend는 `PERSONALM_HOME`을 기준으로 `persona-lm`을 바라보게 한다.
 
 ## SDK 구현 원칙
 - `stdio` 엔트리 포인트는 더 이상 plan JSON만 출력하지 않고 실제 MCP 서버를 기동해야 한다.

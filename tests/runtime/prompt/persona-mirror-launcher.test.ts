@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   buildPersonaMirrorCodexArgs,
@@ -7,9 +7,17 @@ import {
 } from "../../../src/runtime/prompt/persona-mirror-launcher";
 
 describe("persona mirror launcher helpers", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("parses mode, sandbox, and trailing prompt text", () => {
+    vi.stubEnv("PERSONALM_HOME", "/repo/persona-lm");
+
     expect(
       parsePersonaMirrorLauncherArgs([
+        "-C",
+        "/repo/workspace",
         "--mode",
         "dev_feedback",
         "--sandbox",
@@ -18,9 +26,45 @@ describe("persona mirror launcher helpers", () => {
         "질문"
       ])
     ).toEqual({
+      workspaceRoot: "/repo/workspace",
+      personaHome: "/repo/persona-lm",
       mode: "dev_feedback",
       sandbox: "read-only",
       prompt: "첫 번째 질문"
+    });
+  });
+
+  it("uses PERSONALM_HOME as persona backend when -C is omitted", () => {
+    vi.stubEnv("PERSONALM_HOME", "/env/persona-lm");
+
+    expect(parsePersonaMirrorLauncherArgs(["--mode", "locked", "질문"])).toEqual({
+      workspaceRoot: process.cwd(),
+      personaHome: "/env/persona-lm",
+      mode: "locked",
+      sandbox: "workspace-write",
+      prompt: "질문"
+    });
+  });
+
+  it("falls back to the current shell cwd when PERSONALM_HOME is absent", () => {
+    expect(parsePersonaMirrorLauncherArgs(["-C", "/workspace/app", "질문"])).toEqual({
+      workspaceRoot: "/workspace/app",
+      personaHome: process.cwd(),
+      mode: "locked",
+      sandbox: "workspace-write",
+      prompt: "질문"
+    });
+  });
+
+  it("keeps -C as the workspace root even when PERSONALM_HOME exists", () => {
+    vi.stubEnv("PERSONALM_HOME", "/env/persona-lm");
+
+    expect(parsePersonaMirrorLauncherArgs(["-C", "/workspace/app", "질문"])).toEqual({
+      workspaceRoot: "/workspace/app",
+      personaHome: "/env/persona-lm",
+      mode: "locked",
+      sandbox: "workspace-write",
+      prompt: "질문"
     });
   });
 
@@ -37,7 +81,8 @@ describe("persona mirror launcher helpers", () => {
 
   it("builds session-only codex args with MCP overrides", () => {
     const args = buildPersonaMirrorCodexArgs({
-      repoRoot: "/repo/persona-lm",
+      workspaceRoot: "/repo/workspace",
+      personaHome: "/repo/persona-lm",
       mode: "locked",
       sandbox: "workspace-write",
       prompt: "질문"
@@ -45,7 +90,7 @@ describe("persona mirror launcher helpers", () => {
 
     expect(args).toEqual([
       "-C",
-      "/repo/persona-lm",
+      "/repo/workspace",
       "-s",
       "workspace-write",
       "-c",

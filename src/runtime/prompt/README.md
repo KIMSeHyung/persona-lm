@@ -7,6 +7,9 @@
   - `persona core`와 retrieved memory를 사람이 읽기 쉬운 문자열 형식으로 출력한다.
 - `run-persona-mirror.ts`
   - Codex CLI를 세션 한정 persona mirror 모드로 실행하는 launcher entry다.
+  - `-C`는 Codex가 열릴 workspace root를 뜻한다.
+  - `PERSONALM_HOME`은 `persona-lm` backend와 instruction asset root를 뜻한다.
+  - `PERSONALM_HOME`이 없으면 `personalm`을 실행한 현재 셸 디렉터리를 backend root로도 같이 사용한다.
 - `persona-mirror.instructions.md`
   - Codex CLI나 다른 호스트가 그대로 주입할 수 있는 mirror 모드용 persona instruction 초안이다.
 
@@ -15,6 +18,7 @@
 - context formatting
 - 재사용 가능한 host instruction asset 보관
 - 세션 한정 launcher 지원
+- `personalm mirror`가 재사용하는 실행 로직 제공
 - 추후 model/provider별 포맷 분기 지점
 
 ## 이후 추가될 것

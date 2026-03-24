@@ -18,6 +18,9 @@ describe("createPersonaMcpServerDefinition", () => {
       "save_session_memories",
       "submit_feedback"
     ]);
+    expect(
+      server.tools.find((tool) => tool.name === "save_session_memories")?.description
+    ).toContain("conversation unit");
   });
 
   it("allows overriding transport and execution mode", () => {
