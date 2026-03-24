@@ -14,6 +14,8 @@
 - `memories.ts`
   - SQLite `memories` row를 runtime이 쓰는 `CompiledMemory`로 hydrate 하는 read repository다.
   - long-term memory candidate search를 담당한다.
+- `session-memories.ts`
+  - 같은 세션의 LLM이 추출한 durable memory candidate를 `memories`에 직접 저장하거나 기존 row를 보강 update한다.
 - `seed.ts`
   - reviewed seed memory를 SQLite `memories` row로 upsert 하는 개발용 importer다.
 - `schema.ts`

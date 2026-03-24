@@ -205,6 +205,7 @@ describe("MCP stdio server integration", () => {
       "get_memory_evidence",
       "get_persona_core",
       "get_session_summary",
+      "save_session_memories",
       "submit_feedback"
     ]);
   });
@@ -270,7 +271,7 @@ describe("MCP stdio server integration", () => {
     });
   });
 
-  it("returns evidence rows, empty session summary, and persists feedback runs", async () => {
+  it("returns evidence rows, empty session summary, saves session memories, and persists feedback runs", async () => {
     const evidenceResult = await mcpClient.callTool({
       name: "get_memory_evidence",
       arguments: {
@@ -281,6 +282,26 @@ describe("MCP stdio server integration", () => {
       name: "get_session_summary",
       arguments: {
         sessionId: "session_demo"
+      }
+    });
+    const saveSessionMemoriesResult = await mcpClient.callTool({
+      name: "save_session_memories",
+      arguments: {
+        sessionId: "session_demo",
+        candidates: [
+          {
+            kind: "decision_rule",
+            summary: "코드 사실과 persona 판단을 분리한다",
+            canonicalText:
+              "repo의 실제 코드 사실과 persona의 판단 성향이 섞이면 코드와 spec 사실을 먼저 확인하는 편이다.",
+            confidence: 0.68,
+            scope: ["runtime_policy"],
+            tags: ["runtime_policy", "fact_vs_persona"],
+            supportingEvidence: [
+              "코드 사실 질문과 persona self-model 질문을 구분해야 한다고 여러 번 말했다."
+            ]
+          }
+        ]
       }
     });
     const feedbackResult = await mcpClient.callTool({
@@ -296,6 +317,9 @@ describe("MCP stdio server integration", () => {
     const feedbackRunCount = client.sqlite
       .prepare("SELECT COUNT(*) AS count FROM feedback_runs")
       .get() as { count: number };
+    const savedMemoryCount = client.sqlite
+      .prepare("SELECT COUNT(*) AS count FROM memories WHERE summary = ?")
+      .get("코드 사실과 persona 판단을 분리한다") as { count: number };
 
     expect(evidenceResult.structuredContent).toMatchObject({
       memoryId: "mem_with_evidence",
@@ -311,10 +335,22 @@ describe("MCP stdio server integration", () => {
       available: false,
       summary: null
     });
+    expect(saveSessionMemoriesResult.structuredContent).toMatchObject({
+      savedCount: 1,
+      updatedCount: 0,
+      items: [
+        expect.objectContaining({
+          kind: "decision_rule",
+          status: "hypothesis",
+          stability: "emerging"
+        })
+      ]
+    });
     expect(feedbackResult.structuredContent).toMatchObject({
       retryTriggered: true,
       finalAttemptNumber: 2
     });
     expect(feedbackRunCount.count).toBe(1);
+    expect(savedMemoryCount.count).toBe(1);
   });
 });

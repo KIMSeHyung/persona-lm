@@ -176,6 +176,8 @@
 예: `FTS5` virtual table, trigger, search support structure
 `src/db/seed.ts`는 reviewed seed를 SQLite `memories` 테이블에 upsert 하는 개발용 importer 진입점이다.
 `src/db/memories.ts`는 SQLite `memories` row를 runtime이 쓰는 `CompiledMemory`로 다시 hydrate 하는 read repository다.
+세션 종료 시 같은 LLM이 직접 저장하는 memory도 초기에는 별도 candidate table 없이 `memories`에 바로 들어갈 수 있다.
+이 경우 기본값은 `status = hypothesis`, `stability = emerging`, `sourceType = llm_chat`로 두고, metadata에 session save 출처를 남긴다.
 
 ## 확장 예정 테이블
 추후 스키마는 대략 다음 방향으로 확장한다.

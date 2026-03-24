@@ -9,7 +9,7 @@ runtime/
 ├── context/    # 항상 주입할 persona core
 ├── feedback/   # feedback loop와 retry orchestration
 ├── judgment/   # heuristic 또는 model-backed 판단 모듈
-├── prompt/     # model에 넣을 컨텍스트 포맷
+├── prompt/     # model에 넣을 컨텍스트 포맷과 host instruction asset
 ├── retrieval/  # query 관련 memory 선택
 └── session/    # session state 타입과 로직
 ```

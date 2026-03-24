@@ -15,6 +15,7 @@ import { handleGetDecisionContext } from "./handlers/decision-context";
 import { handleGetPersonaCore } from "./handlers/persona-core";
 import { handleSearchMemories } from "./handlers/search-memories";
 import { handleGetSessionSummary } from "./handlers/session-summary";
+import { handleSaveSessionMemories } from "./handlers/save-session-memories";
 import { handleSubmitFeedback } from "./handlers/submit-feedback";
 
 export type PersonaMcpTransport = "stdio" | "http";
@@ -81,6 +82,8 @@ function describeTool(name: PersonaToolName): string {
       return "Return the compact core persona context.";
     case "get_session_summary":
       return "Return the current session summary.";
+    case "save_session_memories":
+      return "Save durable memory candidates from the current conversation as hypothesis/emerging long-term memories.";
     case "submit_feedback":
       return "Store user feedback for a run and report whether the feedback pipeline triggered a retry.";
   }
@@ -296,6 +299,46 @@ function registerPersonaTools(
       })
     },
     async (args) => createStructuredToolResult(handleGetSessionSummary(args, context))
+  );
+
+  server.registerTool(
+    "save_session_memories",
+    {
+      description: describeTool("save_session_memories"),
+      inputSchema: z.object({
+        personaId: z.string().optional(),
+        sessionId: z.string().optional(),
+        candidates: z.array(
+          z.object({
+            kind: z.enum(memoryKinds),
+            summary: z.string().min(1),
+            canonicalText: z.string().min(1),
+            confidence: z.number().min(0).max(1),
+            scope: z.array(z.string()).optional(),
+            tags: z.array(z.string()).optional(),
+            note: z.string().optional(),
+            supportingEvidence: z.array(z.string()).optional()
+          })
+        )
+      }),
+      outputSchema: z.object({
+        personaId: z.string(),
+        sessionId: z.string().nullable(),
+        savedCount: z.number().int(),
+        updatedCount: z.number().int(),
+        items: z.array(
+          z.object({
+            memoryId: z.string(),
+            kind: z.enum(memoryKinds),
+            summary: z.string(),
+            status: z.string(),
+            stability: z.string(),
+            confidence: z.number()
+          })
+        )
+      })
+    },
+    async (args) => createStructuredToolResult(handleSaveSessionMemories(args, context))
   );
 
   server.registerTool(
