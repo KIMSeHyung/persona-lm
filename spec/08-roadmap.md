@@ -58,4 +58,6 @@ MCP
 4. `decision_rule`과 `decision_playbook`의 필드 구조를 정한다.
 5. reviewed seed memory importer를 runtime read path와 연결한다.
 6. MCP `--mode`를 runtime execution policy와 연결한다.
-7. MCP 서버 엔트리 포인트를 스캐폴딩한다.
+7. feedback pipeline과 `feedback_runs` logging을 붙인다.
+8. MCP 기반 review bundle / patch candidate 워크플로우를 붙인다.
+9. MCP 서버 엔트리 포인트를 스캐폴딩한다.

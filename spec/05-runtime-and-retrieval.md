@@ -83,10 +83,113 @@ runtime의 답변 스타일 모드와 별개로, tool 호출과 피드백 루프
 나중에는 이 값을 내부 `execution policy`로 해석해 다음 필드로 확장할 수 있어야 한다.
 
 - `maxToolRounds`
+- initial retrieval 이후 허용되는 추가 보강 round 수다.
 - `allowUserFeedback`
 - `allowRetryOnLowScore`
-- `minScoreForRetry`
+- `minFeedbackScoreForAcceptance`
 - `minConfidenceForNoTool`
+
+## 피드백 파이프라인
+피드백 파이프라인은 "한 번 답하고 끝"이 아니라, 낮은 만족도일 때 retrieval과 context를 한 번 더 보강할 수 있게 하는 실행 루프다.
+
+기본 흐름은 다음과 같다.
+
+1. initial retrieval attempt를 실행한다.
+2. attempt에 사용한 query, strategy, retrieved memory id/score를 inspect 가능한 형태로 남긴다.
+3. 사용자가 점수와 이유를 주거나, system이 top memory confidence 부족을 감지하면 retry 필요 여부를 판단한다.
+4. policy가 허용하면 query reformulation과 kind priority 조정을 거쳐 retrieval을 한 번 더 실행한다.
+5. 마지막 attempt를 최종 context로 채택한다.
+6. 전체 run을 SQLite `feedback_runs`에 기록한다.
+
+이 구조의 목적은 다음 두 가지다.
+
+- 사용자 응답 품질을 즉시 보강하기
+- 나중에 scorer와 retrieval policy를 offline으로 튜닝할 로그를 축적하기
+
+## Judgment 모듈
+query 분류, feedback 해석, retry 전략 선택처럼 "판단" 성격의 로직은 `runtime/feedback`에 흩뿌리지 않고 `runtime/judgment` 모듈에 모은다.
+
+초기 구현에서는 heuristic 규칙으로 시작한다.
+예:
+
+- decision-oriented query 분류
+- `wrong_priority`, `missing_memory` 같은 feedback reason 해석
+- retry query reformulation
+- kind weight 조정
+
+나중에는 같은 인터페이스 뒤에 model-backed judgment engine을 붙일 수 있어야 한다.
+
+## Judgment 와 모델 재사용 원칙
+judgment용으로 별도 LLM이 필수인 것은 아니다.
+
+우선순위는 다음과 같다.
+
+1. 현재 runtime에서 쓰는 모델을 재사용한다.
+2. 필요하면 prompt/profile만 달리해 "judge role"로 호출한다.
+3. 비용, 지연, 안정성 문제가 커질 때만 더 작은 전용 judge 모델을 분리한다.
+
+즉 `judgment`는 "별도 모델"이 아니라 "별도 역할/모듈"로 먼저 설계한다.
+중요한 것은 모델 분리가 아니라, heuristic과 model-backed 판단을 바꿔 끼울 수 있는 인터페이스를 유지하는 것이다.
+
+## 피드백 입력 규칙
+사용자 피드백은 최소한 다음 값을 다룬다.
+
+- `score`
+  - runtime 안에서는 `0.0 ~ 1.0` 실수로 다룬다.
+  - SQLite 저장 시에는 `0 ~ 1000` 정수 스케일로 변환한다.
+- `reason`
+  - `missing_memory`
+  - `wrong_priority`
+  - `too_confident`
+  - `style_mismatch`
+  - `other`
+- `missingAspect`
+  - 빠진 기억, 판단 기준, 예외 조건, 표현 스타일 같은 보강 힌트다.
+- `note`
+  - 자유 텍스트 메모다.
+
+## Retry 원칙
+- retry는 무한 루프가 아니라 최대 1회의 추가 보강부터 시작한다.
+- `locked` 모드에서는 retry를 금지한다.
+- `dev_feedback` 모드에서는 사용자 피드백이 낮을 때 retry를 허용한다.
+- `auto` 모드에서는 사용자 피드백 없이도 top memory confidence가 낮으면 retry를 허용할 수 있다.
+- retry 시에는 query reformulation, top-k 확대, decision kind 가중치 조정 정도까지만 허용하고 임의의 장시간 tool chain으로 확대하지 않는다.
+
+## Feedback Log 원칙
+- 각 feedback run은 initial attempt와 retry attempt를 모두 보존해야 한다.
+- final answer만 저장하지 말고 intermediate retrieval 결과를 함께 남겨야 한다.
+- 저장 로그는 inspect용이면서 동시에 scorer 튜닝용 eval seed 역할을 해야 한다.
+- 초반에는 `feedback_runs.metadata_json` 하나에 attempt 목록을 넣고, 나중에 필요하면 별도 child table로 분리한다.
+
+## 개발 단계의 보강 워크플로우
+개발 단계에서는 scorer 보정과 memory 보강을 앱 내부의 완전 자동 파이프라인으로 바로 밀어넣지 않는다.
+
+우선 구현 기준은 다음과 같다.
+
+1. MCP로 `feedback_runs`, 관련 `memories`, 필요 시 `evidence`를 JSON bundle 형태로 조회한다.
+2. 이 bundle을 기준으로 failure cluster 또는 review batch 단위로 판단한다.
+3. 결과는 즉시 DB를 덮어쓰지 않고 `patch candidate` JSON으로 만든다.
+4. 다시 MCP tool call로 patch candidate를 적재하거나 적용한다.
+
+초기 산출물 예시는 다음과 같다.
+
+- `feedback_review_bundle`
+- `memory_patch_candidate`
+- `new_memory_candidate`
+- `scoring_patch_candidate`
+
+즉 초기 구현의 기본 흐름은 `MCP 조회 -> JSON 일괄 판단 -> MCP 적재`다.
+전 row를 개별 호출로 평가하기보다, 먼저 feedback run이나 failure cluster 단위로 묶어 판단하고 필요한 row만 세부 검토한다.
+
+## 자동화 단계로의 확장
+나중에 batch refinement를 더 자동화하고 싶으면 model-backed judgment engine을 붙일 수 있다.
+
+이때도 우선순위는 다음과 같다.
+
+1. 현재 runtime에서 쓰는 모델 계열을 재사용한다.
+2. 자동 호출이 필요할 때만 API 또는 로컬 inference endpoint를 붙인다.
+
+즉 개발 단계에서는 MCP 기반 review workflow를 우선하고, 완전 자동 배치 정제는 이후 단계에서 endpoint 기반으로 확장한다.
 
 ## 선택 신호
 - memory kind

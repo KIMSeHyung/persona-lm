@@ -11,7 +11,7 @@ export interface PersonaExecutionPolicy {
   maxToolRounds: number;
   allowUserFeedback: boolean;
   allowRetryOnLowScore: boolean;
-  minScoreForRetry: number;
+  minFeedbackScoreForAcceptance: number;
   minConfidenceForNoTool: number;
 }
 
@@ -28,7 +28,7 @@ export function resolvePersonaExecutionPolicy(
         maxToolRounds: 2,
         allowUserFeedback: true,
         allowRetryOnLowScore: true,
-        minScoreForRetry: 0.65,
+        minFeedbackScoreForAcceptance: 0.7,
         minConfidenceForNoTool: 0.85
       };
     case "auto":
@@ -37,7 +37,7 @@ export function resolvePersonaExecutionPolicy(
         maxToolRounds: 1,
         allowUserFeedback: false,
         allowRetryOnLowScore: true,
-        minScoreForRetry: 0.55,
+        minFeedbackScoreForAcceptance: 0.8,
         minConfidenceForNoTool: 0.9
       };
     case "locked":
@@ -46,7 +46,7 @@ export function resolvePersonaExecutionPolicy(
         maxToolRounds: 0,
         allowUserFeedback: false,
         allowRetryOnLowScore: false,
-        minScoreForRetry: 1,
+        minFeedbackScoreForAcceptance: 1,
         minConfidenceForNoTool: 1
       };
   }

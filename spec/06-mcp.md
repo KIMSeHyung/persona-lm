@@ -41,6 +41,17 @@ src/mcp/
 - `get_memory_evidence`
 - `get_persona_core`
 - `get_session_summary`
+- `submit_feedback`
+
+개발 단계의 보강 워크플로우에서는 다음 성격의 tool을 추가할 수 있다.
+
+- `get_feedback_review_bundle`
+  - 특정 persona, 기간, reason, domain 기준으로 review 대상 JSON bundle을 반환한다.
+- `apply_review_patches`
+  - review batch에서 생성한 patch candidate를 저장하거나 적용한다.
+
+초기에는 이 두 tool이 실제 이름 그대로 확정되지 않아도 된다.
+중요한 것은 MCP를 통해 review용 bundle을 조회하고, candidate patch를 다시 적재하는 흐름을 유지하는 것이다.
 
 ## 초기 resource 제안
 - `persona://default/core`
@@ -60,6 +71,10 @@ src/mcp/
 - rerank
 - session policy
 - tool budget 와 retry 정책
+- feedback pipeline logging
 - prompt assembly
 
 `MCP`는 store와 retrieval surface를 외부에 노출하는 계층이다.
+
+개발 단계의 scorer/memory 보강도 우선은 이 MCP surface를 통해 수행한다.
+즉 앱 내부 코드가 직접 모델 endpoint를 호출해 즉시 정제하는 구조보다, MCP로 JSON bundle을 받고 review 결과를 다시 MCP로 적재하는 반수동 workflow를 먼저 구현한다.

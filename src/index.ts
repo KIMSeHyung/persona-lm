@@ -3,6 +3,7 @@ import { buildMockMessengerEvidence } from "./ingest/pipeline/index";
 import { compileMemoryCandidatesFromEvidence, promoteCandidates } from "./memory/compiler/index";
 import { createPersonaMcpServerDefinition } from "./mcp/server";
 import { buildPersonaCore } from "./runtime/context/persona-core";
+import { runFeedbackPipeline } from "./runtime/feedback/index";
 import { formatPersonaContext } from "./runtime/prompt/index";
 import { retrieveRelevantMemories } from "./runtime/retrieval/index";
 import {
@@ -29,6 +30,17 @@ const decisionRetrieved = retrieveRelevantMemories({
   memories: compiledMemories,
   limit: 5
 });
+const feedbackRun = runFeedbackPipeline({
+  personaId,
+  query: "콘텐츠 버전 관리를 어떻게 판단하는 편인지",
+  memories: compiledMemories,
+  mode: "dev_feedback",
+  feedback: {
+    score: 0.42,
+    reason: "missing_memory",
+    missingAspect: "예외 조건"
+  }
+});
 const mcpServer = createPersonaMcpServerDefinition();
 
 console.log("persona-lm scaffold ready");
@@ -38,9 +50,15 @@ console.log(`- Compiled memories: ${compiledMemories.length}`);
 console.log(`- Decision seed memories: ${decisionSeedMemories.length}`);
 console.log(`- MCP tools scaffolded: ${mcpServer.tools.length}`);
 console.log(`- Open decision questions tracked: ${decisionSeedOpenQuestions.length}`);
+console.log(`- Feedback retry triggered: ${feedbackRun.retryTriggered}`);
 console.log("");
 console.log("[style-demo]");
 console.log(formatPersonaContext(personaCore, styleRetrieved));
 console.log("");
 console.log("[decision-demo]");
 console.log(formatPersonaContext(personaCore, decisionRetrieved));
+console.log("");
+console.log("[feedback-demo]");
+console.log(`- attempts: ${feedbackRun.attempts.length}`);
+console.log(`- retry-reason: ${feedbackRun.retryReason ?? "none"}`);
+console.log(`- final-query: ${feedbackRun.attempts[feedbackRun.finalAttemptNumber - 1]?.query ?? ""}`);

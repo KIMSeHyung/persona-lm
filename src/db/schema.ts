@@ -51,3 +51,23 @@ export const memories = sqliteTable("memories", {
   validFrom: integer("valid_from", { mode: "timestamp_ms" }),
   validTo: integer("valid_to", { mode: "timestamp_ms" })
 });
+
+export const feedbackRuns = sqliteTable("feedback_runs", {
+  id: text("id").primaryKey(),
+  personaId: text("persona_id")
+    .notNull()
+    .references(() => personas.id),
+  sessionId: text("session_id"),
+  mode: text("mode").notNull(),
+  query: text("query").notNull(),
+  decisionQuery: integer("decision_query", { mode: "boolean" }).notNull(),
+  feedbackScore: integer("feedback_score"),
+  feedbackReason: text("feedback_reason"),
+  missingAspect: text("missing_aspect"),
+  retryTriggered: integer("retry_triggered", { mode: "boolean" }).notNull(),
+  retryReason: text("retry_reason"),
+  attemptCount: integer("attempt_count").notNull(),
+  finalAttemptNumber: integer("final_attempt_number").notNull(),
+  metadataJson: text("metadata_json").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull()
+});

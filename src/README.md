@@ -21,6 +21,7 @@ src/
 ## 현재 상태
 - `index.ts`는 실제 앱 진입점이라기보다 scaffold 검증용 샘플 흐름이다.
 - mock messenger 데이터가 들어와 memory로 변환되고, retrieval과 persona context formatting까지 이어지는 예제를 보여준다.
+- feedback pipeline은 initial retrieval과 optional retry를 runtime 차원에서 실험할 수 있는 상태다.
 
 ## 앞으로의 방향
 - `db/`는 richer schema와 session 테이블을 포함하도록 확장한다.
