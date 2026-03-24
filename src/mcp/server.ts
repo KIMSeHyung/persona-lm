@@ -11,6 +11,7 @@ import {
 import { memoryKinds } from "../shared/types/memory";
 import { handleGetMemoryEvidence } from "./handlers/memory-evidence";
 import { type PersonaMcpHandlerContext } from "./handlers/index";
+import { handleGetDecisionContext } from "./handlers/decision-context";
 import { handleGetPersonaCore } from "./handlers/persona-core";
 import { handleSearchMemories } from "./handlers/search-memories";
 import { handleGetSessionSummary } from "./handlers/session-summary";
@@ -72,6 +73,8 @@ function describeTool(name: PersonaToolName): string {
   switch (name) {
     case "search_memories":
       return "Search compiled persona memories relevant to the current query.";
+    case "get_decision_context":
+      return "Return a single bundled decision context with persona core, relevant rules, playbooks, traces, and values.";
     case "get_memory_evidence":
       return "Return supporting evidence rows for a memory.";
     case "get_persona_core":
@@ -110,7 +113,7 @@ export function createPersonaMcpSdkServer(
     },
     {
       instructions:
-        "Use compiled persona memory as the primary context source. Prefer structured memory retrieval over raw evidence."
+        "Use compiled persona memory as the primary context source. Prefer structured memory retrieval over raw evidence. For decision, preference, and value questions, call get_decision_context before answering."
     }
   );
 
@@ -148,6 +151,83 @@ function registerPersonaTools(
       })
     },
     async (args) => createStructuredToolResult(handleSearchMemories(args, context))
+  );
+
+  server.registerTool(
+    "get_decision_context",
+    {
+      description: describeTool("get_decision_context"),
+      inputSchema: z.object({
+        personaId: z.string().optional(),
+        query: z.string().min(1)
+      }),
+      outputSchema: z.object({
+        personaId: z.string(),
+        query: z.string(),
+        personaCore: z.object({
+          styleRules: z.array(z.string()),
+          decisionRules: z.array(z.string()),
+          values: z.array(z.string()),
+          preferences: z.array(z.string()),
+          selfDescriptions: z.array(z.string())
+        }),
+        playbooks: z.array(
+          z.object({
+            memoryId: z.string(),
+            summary: z.string(),
+            canonicalText: z.string(),
+            score: z.number(),
+            confidence: z.number(),
+            matchedTerms: z.array(z.string()),
+            trigger: z.string().nullable(),
+            steps: z.array(z.string()),
+            exceptions: z.array(z.string()),
+            tradeoffAxes: z.array(
+              z.object({
+                axis: z.string(),
+                preferredSide: z.string(),
+                reason: z.string()
+              })
+            )
+          })
+        ),
+        rules: z.array(
+          z.object({
+            memoryId: z.string(),
+            summary: z.string(),
+            canonicalText: z.string(),
+            score: z.number(),
+            confidence: z.number(),
+            matchedTerms: z.array(z.string())
+          })
+        ),
+        traces: z.array(
+          z.object({
+            memoryId: z.string(),
+            summary: z.string(),
+            canonicalText: z.string(),
+            score: z.number(),
+            confidence: z.number(),
+            matchedTerms: z.array(z.string()),
+            decision: z.string().nullable(),
+            reasoning: z.string().nullable(),
+            alternatives: z.array(z.string())
+          })
+        ),
+        values: z.array(
+          z.object({
+            memoryId: z.string(),
+            summary: z.string(),
+            canonicalText: z.string(),
+            score: z.number(),
+            confidence: z.number(),
+            matchedTerms: z.array(z.string())
+          })
+        ),
+        usedMemoryIds: z.array(z.string())
+      })
+    },
+    async (args) => createStructuredToolResult(handleGetDecisionContext(args, context))
   );
 
   server.registerTool(

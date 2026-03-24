@@ -39,6 +39,7 @@ src/mcp/
 
 ## 초기 tool 제안
 - `search_memories`
+- `get_decision_context`
 - `get_memory_evidence`
 - `get_persona_core`
 - `get_session_summary`
@@ -52,6 +53,9 @@ src/mcp/
 
 - `search_memories`
   - SQLite `FTS5` 후보 검색과 runtime rerank를 거쳐 memory 후보를 반환한다.
+- `get_decision_context`
+  - decision 질문에 필요한 `persona_core`, `decision_playbook`, `decision_rule`, `decision_trace`, `value`를 한 번에 묶어 반환한다.
+  - 호스트가 여러 tool을 조합하지 않고도 decision 답변 직전 컨텍스트를 안정적으로 확보하게 한다.
 - `get_persona_core`
   - SQLite long-term memory에서 persona core를 구성해 반환한다.
 - `submit_feedback`
@@ -85,6 +89,7 @@ src/mcp/
 - 구조화된 payload를 반환한다.
 - 여러 번의 작은 tool call보다, 한 번의 가치 있는 조회를 우선한다.
 - 모델이 persona 정보를 한 개씩 일일이 가져오게 만들지 않는다.
+- decision 질문은 `search_memories` 여러 번보다 `get_decision_context(query)` 같은 상위 tool을 우선한다.
 
 ## Runtime 과의 관계
 내부 runtime은 계속 다음 책임을 가진다.
@@ -101,6 +106,17 @@ src/mcp/
 
 개발 단계의 scorer/memory 보강도 우선은 이 MCP surface를 통해 수행한다.
 즉 앱 내부 코드가 직접 모델 endpoint를 호출해 즉시 정제하는 구조보다, MCP로 JSON bundle을 받고 review 결과를 다시 MCP로 적재하는 반수동 workflow를 먼저 구현한다.
+
+## 호스트 사용 원칙
+MCP server description이나 instructions는 persona memory 우선 사용을 유도하는 힌트로 넣는 것이 좋다.
+하지만 이것만으로 decision 답변 품질을 강제할 수는 없다.
+
+개발 단계의 호스트나 Codex CLI 테스트에서는 다음 순서를 권장한다.
+
+1. 호스트 프롬프트에서 compiled persona memory를 우선 사용하라고 명시한다.
+2. decision, preference, value 관련 질문에는 `get_decision_context(query)`를 우선 호출하게 한다.
+3. raw evidence보다 compiled memory를 먼저 근거로 삼게 한다.
+4. 사용된 rule/playbook/trace id는 inspect나 feedback log에 남긴다.
 
 ## SDK 구현 원칙
 - `stdio` 엔트리 포인트는 더 이상 plan JSON만 출력하지 않고 실제 MCP 서버를 기동해야 한다.

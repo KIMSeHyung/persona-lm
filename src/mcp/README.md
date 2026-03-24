@@ -15,8 +15,12 @@ mcp/
 ## 현재 상태
 - stable TypeScript MCP SDK를 사용해 stdio 서버를 실제로 구동한다.
 - `stdio` 실행 시 `--mode` arg로 execution policy를 고를 수 있다.
-- 최소 tool surface는 `search_memories`, `get_persona_core`, `submit_feedback`를 우선한다.
+- 최소 tool surface는 `search_memories`, `get_decision_context`, `get_persona_core`, `submit_feedback`를 우선한다.
 - `get_memory_evidence`, `get_session_summary`는 compatibility surface로 유지하되 현재는 제한적으로 동작할 수 있다.
+- Codex CLI에서 세션 한정으로 붙일 때는 `mcp_servers.*` config override를 사용한다.
+- Codex CLI용 stdio command는 `node --import tsx src/mcp/stdio.ts --mode <mode>`를 사용한다.
+- `pnpm mcp:stdio`는 `stdout` 배너 때문에 Codex MCP handshaking command로 사용하지 않는다.
+- decision 질문에서는 `search_memories` 여러 번보다 `get_decision_context(query)` 같은 상위 tool을 우선한다.
 
 ## 이후 추가될 것
 - richer tool handler 구현

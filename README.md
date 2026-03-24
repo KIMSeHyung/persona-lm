@@ -38,7 +38,57 @@ SQLite `FTS5` 같은 support structure는 `drizzle/support/*.sql`에 두고, `pn
 - 타입체크는 `tsc --noEmit`만 사용한다.
 - 프로덕션 빌드는 `tsup`으로 번들한 뒤 plain Node로 실행한다.
 - 소스 코드의 상대 import는 확장자 없이 유지한다.
-- MCP stdio 실행은 `pnpm mcp:stdio -- --mode <dev_feedback|auto|locked>` 형태로 구분한다.
+- MCP stdio를 직접 띄울 때는 `node --import tsx src/mcp/stdio.ts --mode <dev_feedback|auto|locked>`를 사용한다.
+- `pnpm mcp:stdio`는 로컬 수동 실행용으로만 보고, Codex CLI의 MCP 등록 커맨드로는 사용하지 않는다.
+
+## Codex CLI에서 세션 한정 MCP 테스트
+장기기억 검색과 persona core를 Codex CLI에서 테스트할 때는 MCP 서버를 글로벌로 등록하지 않고, 현재 실행 세션에만 주입한다.
+
+먼저 로컬 SQLite를 준비한다.
+
+```bash
+cd /Users/gimsehyeong/persona-llm
+pnpm db:push
+pnpm db:seed -- --persona persona_demo
+```
+
+그다음 Codex를 실행할 때 `mcp_servers` 설정을 오버라이드한다.
+
+`locked` 모드:
+
+```bash
+codex \
+  -C /Users/gimsehyeong/persona-llm \
+  -s workspace-write \
+  -c 'mcp_servers.persona_lm.command="node"' \
+  -c 'mcp_servers.persona_lm.args=["--import","tsx","src/mcp/stdio.ts","--mode","locked"]' \
+  -c 'mcp_servers.persona_lm.cwd="/Users/gimsehyeong/persona-llm"'
+```
+
+`dev_feedback` 모드:
+
+```bash
+codex \
+  -C /Users/gimsehyeong/persona-llm \
+  -s workspace-write \
+  -c 'mcp_servers.persona_lm.command="node"' \
+  -c 'mcp_servers.persona_lm.args=["--import","tsx","src/mcp/stdio.ts","--mode","dev_feedback"]' \
+  -c 'mcp_servers.persona_lm.cwd="/Users/gimsehyeong/persona-llm"'
+```
+
+세션 안에서는 `search_memories`, `get_persona_core`, `get_memory_evidence`, `submit_feedback`를 바로 호출해 long-term memory 경로를 확인할 수 있다.
+
+테스트 시작 프롬프트는 아래처럼 두는 것이 좋다.
+
+```text
+이 세션에서는 persona_lm MCP를 우선 사용한다.
+특히 의사결정, 선호, 가치관 관련 질문에는 답변 전에 persona_lm의 compiled memory를 먼저 조회한다.
+raw evidence보다 compiled memory를 우선 근거로 삼고, decision 질문에는 get_decision_context(query)를 먼저 호출한다.
+```
+
+주의:
+- `pnpm mcp:stdio`는 `stdout`에 배너가 찍혀 MCP stdio 핸드셰이크를 깨뜨릴 수 있다.
+- Codex CLI에서 MCP 서버를 붙일 때는 반드시 `node --import tsx src/mcp/stdio.ts ...` 형태를 사용한다.
 
 ## 테스트 실행
 - `pnpm test`
