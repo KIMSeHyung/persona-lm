@@ -1,20 +1,31 @@
+import { applyDatabaseSupportMigrations } from "./db/bootstrap";
 import { dbPath } from "./db/client";
+import { listMemoriesForPersona } from "./db/memories";
+import { importDecisionSeedMemories } from "./db/seed";
 import { buildMockMessengerEvidence } from "./ingest/pipeline/index";
 import { compileMemoryCandidatesFromEvidence, promoteCandidates } from "./memory/compiler/index";
 import { createPersonaMcpServerDefinition } from "./mcp/server";
 import { buildPersonaCore } from "./runtime/context/persona-core";
 import { runFeedbackPipeline } from "./runtime/feedback/index";
 import { formatPersonaContext } from "./runtime/prompt/index";
-import { retrieveRelevantMemories } from "./runtime/retrieval/index";
 import {
-  buildDecisionSeedMemories,
-  decisionSeedOpenQuestions
-} from "./seeds/persona/decision-seed";
+  retrieveRelevantMemories,
+  retrieveRelevantMemoriesFromStore
+} from "./runtime/retrieval/index";
 
 const personaId = "persona_demo";
+applyDatabaseSupportMigrations();
 const evidenceUnits = buildMockMessengerEvidence(personaId);
 const memoryCandidates = compileMemoryCandidatesFromEvidence(evidenceUnits);
-const decisionSeedMemories = buildDecisionSeedMemories(personaId);
+const seedImportResult = importDecisionSeedMemories({
+  personaId,
+  slug: "persona-demo",
+  displayName: "Persona Demo"
+});
+const decisionSeedMemories = listMemoriesForPersona({
+  personaId,
+  kinds: ["decision_rule", "decision_playbook", "decision_trace", "value"]
+});
 const compiledMemories = [
   ...promoteCandidates(memoryCandidates),
   ...decisionSeedMemories
@@ -28,6 +39,13 @@ const styleRetrieved = retrieveRelevantMemories({
 const decisionRetrieved = retrieveRelevantMemories({
   query: "콘텐츠 버전 관리와 동시성 제어를 어떻게 판단하는 편인지",
   memories: compiledMemories,
+  limit: 5
+});
+const decisionRetrievedFromStore = retrieveRelevantMemoriesFromStore({
+  personaId,
+  query: "콘텐츠 버전 관리와 동시성 제어를 어떻게 판단하는 편인지",
+  kinds: ["decision_rule", "decision_playbook", "decision_trace", "value"],
+  candidateLimit: 12,
   limit: 5
 });
 const feedbackRun = runFeedbackPipeline({
@@ -47,9 +65,10 @@ console.log("persona-lm scaffold ready");
 console.log(`- SQLite database path: ${dbPath}`);
 console.log(`- Mock evidence units: ${evidenceUnits.length}`);
 console.log(`- Compiled memories: ${compiledMemories.length}`);
-console.log(`- Decision seed memories: ${decisionSeedMemories.length}`);
+console.log(`- Decision seed memories from SQLite: ${decisionSeedMemories.length}`);
+console.log(`- Seed memories imported this run: ${seedImportResult.importedCount}`);
 console.log(`- MCP tools scaffolded: ${mcpServer.tools.length}`);
-console.log(`- Open decision questions tracked: ${decisionSeedOpenQuestions.length}`);
+console.log(`- Open decision questions tracked: ${seedImportResult.openQuestionCount}`);
 console.log(`- Feedback retry triggered: ${feedbackRun.retryTriggered}`);
 console.log("");
 console.log("[style-demo]");
@@ -57,6 +76,9 @@ console.log(formatPersonaContext(personaCore, styleRetrieved));
 console.log("");
 console.log("[decision-demo]");
 console.log(formatPersonaContext(personaCore, decisionRetrieved));
+console.log("");
+console.log("[decision-db-demo]");
+console.log(formatPersonaContext(personaCore, decisionRetrievedFromStore));
 console.log("");
 console.log("[feedback-demo]");
 console.log(`- attempts: ${feedbackRun.attempts.length}`);

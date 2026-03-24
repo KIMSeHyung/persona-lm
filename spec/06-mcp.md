@@ -67,6 +67,7 @@ src/mcp/
 ## Runtime 과의 관계
 내부 runtime은 계속 다음 책임을 가진다.
 
+- SQLite `FTS` 기반 candidate retrieval
 - retrieval 전략
 - rerank
 - session policy

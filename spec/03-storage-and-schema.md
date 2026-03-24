@@ -31,6 +31,15 @@
 - `memories`
 - `feedback_runs`
 
+## 현재 구현된 보조 검색 구조
+- `memories_fts`
+  - SQLite `FTS5` virtual table이다.
+  - `memory summary`, `canonical text`, `tags`, `scope`를 후보 검색용으로 색인한다.
+  - authoritative store는 아니고, `memories`의 검색 보조 인덱스다.
+- `memories_fts` sync trigger
+  - `memories` row insert/update/delete 시 FTS index를 함께 갱신한다.
+  - 개발 단계에서는 `drizzle/support/*.sql` 과 `src/db/bootstrap.ts`가 이 구조를 bootstrap 한다.
+
 ## 현재 `personas` 테이블
 - `id`
   - persona의 안정적인 내부 식별자다.
@@ -156,11 +165,17 @@
 
 ## 현재 코드 레벨의 보조 저장 경로
 - `src/seeds/`
+- `src/db/bootstrap.ts`
 - `src/db/seed.ts`
+- `src/db/memories.ts`
+- `drizzle/support/`
 
 이 경로에는 DB에 아직 적재하지 않은 reviewed seed memory를 코드 형태로 둘 수 있다.
 현재는 `seed`를 하나의 `sourceType`으로 사용해 in-memory compiled memory처럼 다루고 있다.
+`src/db/bootstrap.ts`는 `drizzle/support/*.sql`에 있는 SQLite support migration을 적용하는 bootstrap 진입점이다.
+예: `FTS5` virtual table, trigger, search support structure
 `src/db/seed.ts`는 reviewed seed를 SQLite `memories` 테이블에 upsert 하는 개발용 importer 진입점이다.
+`src/db/memories.ts`는 SQLite `memories` row를 runtime이 쓰는 `CompiledMemory`로 다시 hydrate 하는 read repository다.
 
 ## 확장 예정 테이블
 추후 스키마는 대략 다음 방향으로 확장한다.
@@ -183,10 +198,16 @@ retrieval은 다음 하이브리드 구조를 기본으로 한다.
 3. 필요 시 vector 기반 의미 유사도 검색
 4. 최종 prompt 주입 전 rerank
 
+현재 구현에서는 long-term memory retrieval의 첫 단계로 `memories_fts`에서 `top N` 후보를 가져오고, 그 다음 TypeScript scorer가 `confidence`, `status`, `kind weight`를 섞어 최종 rerank 한다.
+
 ## 개발 단계의 스키마 반영 방식
 현재처럼 스키마가 빠르게 변하는 단계에서는 `src/db/schema.ts`를 source of truth로 두고 `drizzle-kit push`로 로컬 DB에 반영하는 흐름을 기본으로 한다.
 
 정식 migration 파일을 지속적으로 관리하는 방식은 memory/evidence shape가 어느 정도 안정된 이후로 미룬다.
+
+다만 `FTS5` virtual table, trigger 같은 SQLite support structure는 Drizzle schema가 직접 표현하지 못하므로 `drizzle/support/*.sql`과 `src/db/bootstrap.ts`에서 idempotent하게 관리한다.
+개발 흐름에서는 `pnpm db:push`가 schema push 뒤에 bootstrap까지 함께 수행해야 한다.
+이때 `drizzle.config.ts`의 `tablesFilter`로 Drizzle 관리 대상 테이블을 제한해 support structure가 삭제 후보로 잡히지 않게 한다.
 
 ## FTS 사용 원칙
 `FTS`는 다음 텍스트에 우선 적용한다.
@@ -194,6 +215,8 @@ retrieval은 다음 하이브리드 구조를 기본으로 한다.
 - evidence 본문
 - memory summary
 - memory canonical text
+- memory tags
+- memory scope
 
 `FTS`는 후보를 찾는 용도이지, 최종 선택 로직 자체는 아니다.
 
