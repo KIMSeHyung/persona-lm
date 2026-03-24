@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "bin": {
+    "personalm": "./bin/personalm.js"
+  },
   "packageManager": "pnpm@10.30.2",
   "scripts": {
     "dev": "node --import tsx src/index.ts",

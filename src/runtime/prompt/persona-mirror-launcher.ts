@@ -6,6 +6,8 @@ export type PersonaMirrorSandboxMode =
   | "danger-full-access";
 
 export interface PersonaMirrorLauncherArgs {
+  workspaceRoot: string;
+  personaHome: string;
   mode: "dev_feedback" | "auto" | "locked";
   sandbox: PersonaMirrorSandboxMode;
   prompt: string;
@@ -17,10 +19,18 @@ export interface BuildPersonaMirrorSessionPromptInput {
 }
 
 export interface BuildPersonaMirrorCodexArgsInput {
-  repoRoot: string;
+  workspaceRoot: string;
+  personaHome: string;
   mode: PersonaMirrorLauncherArgs["mode"];
   sandbox: PersonaMirrorLauncherArgs["sandbox"];
   prompt: string;
+}
+
+/**
+ * Resolves the persona backend root from environment, falling back to the current shell cwd.
+ */
+export function resolvePersonaMirrorHome(): string {
+  return process.env.PERSONALM_HOME ?? process.cwd();
 }
 
 /**
@@ -33,6 +43,11 @@ export function parsePersonaMirrorLauncherArgs(
   const { values, positionals } = parseArgs({
     args: normalizedArgs,
     options: {
+      cwd: {
+        type: "string",
+        short: "C",
+        default: process.cwd()
+      },
       mode: {
         type: "string",
         default: "locked"
@@ -47,6 +62,8 @@ export function parsePersonaMirrorLauncherArgs(
   const prompt = positionals.join(" ").trim();
 
   return {
+    workspaceRoot: values.cwd,
+    personaHome: resolvePersonaMirrorHome(),
     mode: parseMode(values.mode),
     sandbox: parseSandbox(values.sandbox),
     prompt
@@ -77,7 +94,7 @@ export function buildPersonaMirrorCodexArgs(
 ): string[] {
   return [
     "-C",
-    input.repoRoot,
+    input.workspaceRoot,
     "-s",
     input.sandbox,
     "-c",
@@ -85,7 +102,7 @@ export function buildPersonaMirrorCodexArgs(
     "-c",
     `mcp_servers.persona_lm.args=["--import","tsx","src/mcp/stdio.ts","--mode","${input.mode}"]`,
     "-c",
-    `mcp_servers.persona_lm.cwd="${input.repoRoot}"`,
+    `mcp_servers.persona_lm.cwd="${input.personaHome}"`,
     input.prompt
   ];
 }

@@ -9,27 +9,25 @@ import {
   parsePersonaMirrorLauncherArgs
 } from "./persona-mirror-launcher";
 
-const repoRoot = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../.."
-);
-const instructionPath = path.resolve(
-  repoRoot,
-  "src/runtime/prompt/persona-mirror.instructions.md"
-);
-
 /**
  * Starts a session-scoped Codex run with persona mirror instructions and MCP overrides injected.
  */
 export async function runPersonaMirrorLauncher(args: string[]): Promise<number> {
   const parsed = parsePersonaMirrorLauncherArgs(args);
+  const workspaceRoot = path.resolve(parsed.workspaceRoot);
+  const personaHome = path.resolve(parsed.personaHome);
+  const instructionPath = path.resolve(
+    personaHome,
+    "src/runtime/prompt/persona-mirror.instructions.md"
+  );
   const instructionText = readFileSync(instructionPath, "utf8");
   const prompt = buildPersonaMirrorSessionPrompt({
     instructionText,
     userPrompt: parsed.prompt
   });
   const codexArgs = buildPersonaMirrorCodexArgs({
-    repoRoot,
+    workspaceRoot,
+    personaHome,
     mode: parsed.mode,
     sandbox: parsed.sandbox,
     prompt
@@ -37,7 +35,7 @@ export async function runPersonaMirrorLauncher(args: string[]): Promise<number> 
 
   return await new Promise<number>((resolve, reject) => {
     const child = spawn("codex", codexArgs, {
-      cwd: repoRoot,
+      cwd: workspaceRoot,
       stdio: "inherit"
     });
 

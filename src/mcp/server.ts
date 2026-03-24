@@ -83,7 +83,7 @@ function describeTool(name: PersonaToolName): string {
     case "get_session_summary":
       return "Return the current session summary.";
     case "save_session_memories":
-      return "Save durable memory candidates from the current conversation as hypothesis/emerging long-term memories.";
+      return "Save durable memory candidates from the current conversation unit as hypothesis/emerging long-term memories when stable persona insight has emerged.";
     case "submit_feedback":
       return "Store user feedback for a run and report whether the feedback pipeline triggered a retry.";
   }
@@ -116,7 +116,7 @@ export function createPersonaMcpSdkServer(
     },
     {
       instructions:
-        "Use compiled persona memory as the primary context source. Prefer structured memory retrieval over raw evidence. For decision, preference, and value questions, call get_decision_context before answering."
+        "Use compiled persona memory as the primary context source. Prefer structured memory retrieval over raw evidence. For decision, preference, and value questions, call get_decision_context before answering. When a conversation unit reveals durable persona insight, save it with save_session_memories instead of waiting only for session end."
     }
   );
 
