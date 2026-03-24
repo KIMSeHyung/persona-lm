@@ -12,6 +12,7 @@ export const personaToolNames = [
   "get_memory_evidence",
   "get_persona_core",
   "get_session_summary",
+  "save_session_memories",
   "submit_feedback"
 ] as const;
 
@@ -81,6 +82,36 @@ export interface GetSessionSummaryResult extends Record<string, unknown> {
     updatedAt: string | null;
   } | null;
   available: boolean;
+}
+
+export interface SaveSessionMemoriesInput {
+  personaId?: string;
+  sessionId?: string;
+  candidates: Array<{
+    kind: MemoryKind;
+    summary: string;
+    canonicalText: string;
+    confidence: number;
+    scope?: string[];
+    tags?: string[];
+    note?: string;
+    supportingEvidence?: string[];
+  }>;
+}
+
+export interface SaveSessionMemoriesResult extends Record<string, unknown> {
+  personaId: string;
+  sessionId: string | null;
+  savedCount: number;
+  updatedCount: number;
+  items: Array<{
+    memoryId: string;
+    kind: MemoryKind;
+    summary: string;
+    status: string;
+    stability: string;
+    confidence: number;
+  }>;
 }
 
 export interface SubmitFeedbackInput {

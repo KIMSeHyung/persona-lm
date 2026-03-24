@@ -42,6 +42,7 @@ Runtime
 - session handling
 - inspect mode 지원
 - decision-oriented prompt / retrieval 경로 추가
+- session-derived memory auto-promote policy
 
 ## Milestone 4
 MCP
@@ -64,3 +65,7 @@ MCP
 10. MCP 서버 엔트리 포인트를 스캐폴딩한다.
 11. long-term memory `top N` candidate retrieval에 SQLite `FTS5`를 붙인다.
 12. MCP SDK stdio 서버와 최소 tool handler를 실제로 연결한다.
+13. session-derived memory를 `hypothesis/emerging`로 저장하고 low-risk kind에 한해 자동 승격 규칙을 붙인다.
+14. session memory용 summary normalization을 도입해 표면적인 문장 차이 때문에 memory가 분리되지 않게 한다.
+15. semantic duplicate merge를 도입해 의미상 같은 memory를 자동 병합한다.
+16. contradiction detection을 도입해 상충 memory를 자동 약화하거나 review 대상으로 보낸다.

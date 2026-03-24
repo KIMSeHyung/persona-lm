@@ -15,6 +15,7 @@ describe("createPersonaMcpServerDefinition", () => {
       "get_memory_evidence",
       "get_persona_core",
       "get_session_summary",
+      "save_session_memories",
       "submit_feedback"
     ]);
   });

@@ -44,7 +44,9 @@ SQLite `FTS5` 같은 support structure는 `drizzle/support/*.sql`에 두고, `pn
 ## Codex CLI에서 세션 한정 MCP 테스트
 장기기억 검색과 persona core를 Codex CLI에서 테스트할 때는 MCP 서버를 글로벌로 등록하지 않고, 현재 실행 세션에만 주입한다.
 
-먼저 로컬 SQLite를 준비한다.
+### 1. 로컬 DB 준비
+
+먼저 로컬 SQLite와 reviewed seed memory를 준비한다.
 
 ```bash
 cd /Users/gimsehyeong/persona-llm
@@ -52,43 +54,87 @@ pnpm db:push
 pnpm db:seed -- --persona persona_demo
 ```
 
-그다음 Codex를 실행할 때 `mcp_servers` 설정을 오버라이드한다.
+### 2. Persona mirror 세션 시작
+
+그다음 세션 한정 launcher를 사용한다.
 
 `locked` 모드:
 
 ```bash
-codex \
-  -C /Users/gimsehyeong/persona-llm \
-  -s workspace-write \
-  -c 'mcp_servers.persona_lm.command="node"' \
-  -c 'mcp_servers.persona_lm.args=["--import","tsx","src/mcp/stdio.ts","--mode","locked"]' \
-  -c 'mcp_servers.persona_lm.cwd="/Users/gimsehyeong/persona-llm"'
+pnpm persona:mirror -- --mode locked "콘텐츠 버전 관리 관련 의사결정 성향을 말해줘"
 ```
 
 `dev_feedback` 모드:
 
 ```bash
-codex \
-  -C /Users/gimsehyeong/persona-llm \
-  -s workspace-write \
-  -c 'mcp_servers.persona_lm.command="node"' \
-  -c 'mcp_servers.persona_lm.args=["--import","tsx","src/mcp/stdio.ts","--mode","dev_feedback"]' \
-  -c 'mcp_servers.persona_lm.cwd="/Users/gimsehyeong/persona-llm"'
+pnpm persona:mirror -- --mode dev_feedback "동시성과 idempotency를 어떻게 판단하는 편인지 말해줘"
 ```
 
-세션 안에서는 `search_memories`, `get_persona_core`, `get_memory_evidence`, `submit_feedback`를 바로 호출해 long-term memory 경로를 확인할 수 있다.
+이 launcher는 다음을 현재 Codex 실행 한 번에만 적용한다.
+- `persona_lm` MCP stdio 서버를 세션 한정으로 주입한다.
+- [persona-mirror.instructions.md](./src/runtime/prompt/persona-mirror.instructions.md) 내용을 첫 prompt에 포함한다.
+- 글로벌 Codex 설정과 [AGENTS.md](./AGENTS.md)를 수정하지 않는다.
 
-테스트 시작 프롬프트는 아래처럼 두는 것이 좋다.
+질문 없이 먼저 세션만 열고 싶다면 다음처럼 실행할 수 있다.
+
+```bash
+pnpm persona:mirror -- --mode locked
+```
+
+### 3. 세션 중 질문하기
+
+세션 안에서는 주로 다음 성격의 질문에서 `persona_lm`을 우선 사용한다.
+
+- 의사결정 성향
+- 선호와 가치관
+- 작업 방식
+- 왜 그렇게 판단하는 편인지에 대한 질문
+
+예:
 
 ```text
-이 세션에서는 persona_lm MCP를 우선 사용한다.
-특히 의사결정, 선호, 가치관 관련 질문에는 답변 전에 persona_lm의 compiled memory를 먼저 조회한다.
-raw evidence보다 compiled memory를 우선 근거로 삼고, decision 질문에는 get_decision_context(query)를 먼저 호출한다.
+콘텐츠 버전 관리를 할 때 어떤 판단 순서를 따르는 편이야?
+동시성과 재시도 안전성 중 뭘 더 먼저 보는 편이야?
+구조를 먼저 잡는 편인지, 빠르게 구현하는 편인지 말해줘.
 ```
+
+이때 내부적으로는 `get_decision_context`, `get_persona_core`, `search_memories` 같은 tool이 사용될 수 있지만, mirror 모드에서는 그 과정을 드러내지 않는 쪽을 기본으로 한다.
+
+### 4. 세션 끝나기 전에 memory 저장
+
+같은 세션의 LLM이 현재 대화 내용을 보고 장기기억 후보를 직접 저장할 수 있다.
+세션 마지막에 아래처럼 요청하면 된다.
+
+```text
+이번 대화에서 장기기억으로 남길 만한 것만 저장해.
+```
+
+또는
+
+```text
+세션을 정리하고 durable한 memory만 남겨줘.
+```
+
+이 요청은 `save_session_memories`를 사용해 현재 대화에서 반복되거나 장기적으로 유지될 만한 성향, 선호, 가치, 작업 방식만 저장한다.
+저장된 memory의 기본 상태는 `hypothesis` / `emerging`이다.
+
+### 5. 자동 승격 규칙
+
+세션에서 저장된 memory는 처음에는 약한 상태로 들어가지만, 일부 kind는 반복되면 자동 승격된다.
+
+- 기본 저장 상태: `hypothesis` / `emerging`
+- 자동 승격 대상: `decision_rule`, `preference`, `value`
+- 승격 조건: 같은 `kind + summary`가 서로 다른 세션에서 다시 저장됨
+- 승격 결과: `confirmed` / `stable`
+- 자동 승격 제외: `decision_trace` 같은 event성 memory
+
+현재 구현은 동일 요약 기준의 단순 규칙으로 승격한다.
+향후에는 `summary normalization`, `semantic duplicate merge`, `contradiction detection`을 추가해 더 안정적으로 다듬는다.
 
 주의:
 - `pnpm mcp:stdio`는 `stdout`에 배너가 찍혀 MCP stdio 핸드셰이크를 깨뜨릴 수 있다.
 - Codex CLI에서 MCP 서버를 붙일 때는 반드시 `node --import tsx src/mcp/stdio.ts ...` 형태를 사용한다.
+- `pnpm persona:mirror`는 질문 문자열을 함께 넘기는 사용을 기본으로 한다. 질문 없이 실행하면 instruction만 먼저 전달된 세션이 열린다.
 
 ## 테스트 실행
 - `pnpm test`

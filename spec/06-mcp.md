@@ -43,6 +43,7 @@ src/mcp/
 - `get_memory_evidence`
 - `get_persona_core`
 - `get_session_summary`
+- `save_session_memories`
 - `submit_feedback`
   - 기존 run id를 받아 덮어쓰는 방식보다, `query + score + reason + optional sessionId`를 받아 feedback pipeline을 새로 실행하고 `feedback_runs`에 기록하는 방식으로 시작한다.
 
@@ -58,6 +59,9 @@ src/mcp/
   - 호스트가 여러 tool을 조합하지 않고도 decision 답변 직전 컨텍스트를 안정적으로 확보하게 한다.
 - `get_persona_core`
   - SQLite long-term memory에서 persona core를 구성해 반환한다.
+- `save_session_memories`
+  - 같은 세션의 LLM이 현재 대화 문맥을 바탕으로 추출한 durable memory candidate를 직접 저장한다.
+  - 이때 기본 저장 상태는 `hypothesis` / `emerging`로 두고, raw transcript 전체를 저장하지 않는다.
 - `submit_feedback`
   - feedback pipeline을 실행하고 결과를 `feedback_runs`에 기록한다.
 
@@ -117,6 +121,13 @@ MCP server description이나 instructions는 persona memory 우선 사용을 유
 2. decision, preference, value 관련 질문에는 `get_decision_context(query)`를 우선 호출하게 한다.
 3. raw evidence보다 compiled memory를 먼저 근거로 삼게 한다.
 4. 사용된 rule/playbook/trace id는 inspect나 feedback log에 남긴다.
+
+세션 memory 저장을 허용할 때는 다음 원칙을 추가한다.
+
+1. `save_session_memories`는 매 턴마다 호출하지 않는다.
+2. 사용자가 명시적으로 요청했거나 세션 종료 직전일 때만 호출한다.
+3. 현재 대화에서 반복되거나 장기적으로 유효한 성향만 저장 대상으로 본다.
+4. 저장 시 바로 강한 사실처럼 다루지 않고, 기본적으로 `hypothesis` / `emerging` 상태로 둔다.
 
 ## SDK 구현 원칙
 - `stdio` 엔트리 포인트는 더 이상 plan JSON만 출력하지 않고 실제 MCP 서버를 기동해야 한다.

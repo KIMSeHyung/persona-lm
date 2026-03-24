@@ -75,6 +75,7 @@ src/
 - `ingest/`: raw source import 와 normalize
 - `memory/`: candidate 추출과 memory compile
 - `runtime/`: query 시점 orchestration
+- `runtime/prompt/`: prompt formatting과 재사용 가능한 host instruction asset
 - `mcp/`: 외부 LLM이 접근하는 인터페이스
 - `seeds/`: reviewed seed memory 와 fixture
 - `shared/`: 공통 타입, 유틸리티, ID 생성 등

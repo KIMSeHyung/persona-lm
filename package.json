@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "node --import tsx src/index.ts",
     "mcp:stdio": "node --import tsx src/mcp/stdio.ts",
+    "persona:mirror": "node --import tsx src/runtime/prompt/run-persona-mirror.ts",
     "test": "vitest",
     "test:run": "vitest run",
     "build": "tsup --config tsup.config.ts",
