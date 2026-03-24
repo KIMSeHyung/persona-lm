@@ -6,19 +6,19 @@
 
 ```text
 mcp/
-├── server.ts  # 공통 server definition
+├── handlers/  # tool/resource adapter
+├── server.ts  # SDK server 구성
 ├── stdio.ts   # stdio transport 진입점
 └── tools/     # tool contract
 ```
 
 ## 현재 상태
-- 실제 MCP SDK 연결은 아직 없다.
-- 대신 어떤 tool/resource를 노출할지에 대한 구조만 스캐폴드해둔 상태다.
+- stable TypeScript MCP SDK를 사용해 stdio 서버를 실제로 구동한다.
 - `stdio` 실행 시 `--mode` arg로 execution policy를 고를 수 있다.
-- feedback pipeline을 위해 `submit_feedback` tool contract를 함께 유지한다.
+- 최소 tool surface는 `search_memories`, `get_persona_core`, `submit_feedback`를 우선한다.
+- `get_memory_evidence`, `get_session_summary`는 compatibility surface로 유지하되 현재는 제한적으로 동작할 수 있다.
 
 ## 이후 추가될 것
-- MCP SDK 연결
-- tool handler 구현
-- resource handler 구현
+- richer tool handler 구현
+- resource handler 확장
 - 필요 시 HTTP transport

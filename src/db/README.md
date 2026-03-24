@@ -7,6 +7,8 @@
   - `drizzle/support/*.sql`에 있는 SQLite support migration을 적용한다.
 - `client.ts`
   - SQLite 파일 경로를 잡고 Drizzle client를 생성한다.
+- `evidence.ts`
+  - evidence row를 조회하는 read repository다.
 - `feedback.ts`
   - feedback pipeline run을 SQLite `feedback_runs` 테이블에 기록하고 조회한다.
 - `memories.ts`
