@@ -58,11 +58,12 @@ SQLite `FTS5` 같은 support structure는 `drizzle/support/*.sql`에 두고, `pn
 - reviewed decision seed -> SQLite runtime read path
 - SQLite `FTS5` 기반 long-term memory candidate retrieval
 - feedback pipeline scaffold와 `feedback_runs` logging
+- MCP SDK 기반 stdio server와 core tool handler 연결
 
 아직 구현되지 않은 내용:
 - 실제 ingest adapter
 - 본격 memory compiler
-- MCP SDK 연결
+- full MCP tool/resource surface 확장
 
 ## 문서
 - 프로젝트 스펙 진입점: [spec/README.md](./spec/README.md)

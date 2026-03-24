@@ -30,6 +30,7 @@ src/
 ├── db/
 │   ├── bootstrap.ts
 │   ├── client.ts
+│   ├── evidence.ts
 │   ├── feedback.ts
 │   ├── memories.ts
 │   ├── seed.ts
@@ -52,6 +53,7 @@ src/
 │   ├── prompt/
 │   └── session/
 ├── mcp/
+│   ├── handlers/
 │   ├── server.ts
 │   ├── stdio.ts
 │   └── tools/
@@ -86,6 +88,7 @@ src/
 - `src/db/seed.ts`
 - `src/db/feedback.ts`
 - `src/db/bootstrap.ts`
+- `src/db/evidence.ts`
 - `src/db/memories.ts`
 - `src/memory/models.ts`
 - `src/runtime/config.ts`
@@ -94,9 +97,11 @@ src/
 - `src/runtime/retrieval/index.ts`
 - `src/mcp/server.ts`
 - `src/mcp/stdio.ts`
+- `src/mcp/handlers/`
 - `src/seeds/persona/decision-seed.data.ts`
 - `src/seeds/persona/decision-seed.ts`
 
 ## 가까운 시점에 추가될 가능성이 큰 파일
 - `src/runtime/request-classifier.ts`
 - `src/mcp/handlers/search-memories.ts`
+- `src/mcp/handlers/persona-core.ts`

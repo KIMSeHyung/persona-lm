@@ -2,8 +2,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 
-import { createPersonaMcpServerDefinition } from "./server";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+import { applyDatabaseSupportMigrations } from "../db/bootstrap";
 import { parsePersonaExecutionMode, type PersonaExecutionMode } from "../runtime/config";
+import {
+  createPersonaMcpSdkServer,
+  createPersonaMcpServerDefinition
+} from "./server";
 
 export interface CreateStdioServerPlanInput {
   mode?: PersonaExecutionMode;
@@ -40,14 +46,31 @@ export function parseStdioArgs(args: string[]) {
 }
 
 function runCli(): void {
-  const { mode } = parseStdioArgs(process.argv.slice(2));
-  const plan = createStdioServerPlan({ mode });
-
-  console.log(JSON.stringify(plan, null, 2));
+  void runStdioServer(parseStdioArgs(process.argv.slice(2))).catch((error) => {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  });
 }
 
 if (isMainModule()) {
   runCli();
+}
+
+/**
+ * Boots the real SDK-backed stdio MCP server for local integrations.
+ */
+export async function runStdioServer(
+  input: CreateStdioServerPlanInput = {}
+): Promise<void> {
+  applyDatabaseSupportMigrations();
+
+  const server = createPersonaMcpSdkServer({
+    transport: "stdio",
+    mode: input.mode ?? "auto"
+  });
+  const transport = new StdioServerTransport();
+
+  await server.connect(transport);
 }
 
 function isMainModule(): boolean {

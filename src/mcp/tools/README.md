@@ -10,6 +10,7 @@
 - tool 이름 고정
 - 요청/응답 shape 정리
 - handler 구현 전 인터페이스 기준점 제공
+- MCP SDK 등록 시 입력 schema와 structured result를 맞추는 기준점 제공
 
 ## 이후 추가될 것
 - tool별 schema

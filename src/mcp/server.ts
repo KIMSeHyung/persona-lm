@@ -1,11 +1,23 @@
+import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { z } from "zod";
+
+import { getMemoryById, listMemoriesForPersona } from "../db/memories";
 import { personaToolNames, type PersonaToolName } from "./tools/contracts";
 import {
   resolvePersonaExecutionPolicy,
   type PersonaExecutionMode,
   type PersonaExecutionPolicy
 } from "../runtime/config";
+import { memoryKinds } from "../shared/types/memory";
+import { handleGetMemoryEvidence } from "./handlers/memory-evidence";
+import { type PersonaMcpHandlerContext } from "./handlers/index";
+import { handleGetPersonaCore } from "./handlers/persona-core";
+import { handleSearchMemories } from "./handlers/search-memories";
+import { handleGetSessionSummary } from "./handlers/session-summary";
+import { handleSubmitFeedback } from "./handlers/submit-feedback";
 
 export type PersonaMcpTransport = "stdio" | "http";
+export const defaultPersonaId = "persona_demo";
 
 export interface PersonaMcpToolDefinition {
   name: PersonaToolName;
@@ -25,6 +37,11 @@ export interface PersonaMcpServerDefinition {
 export interface CreatePersonaMcpServerDefinitionInput {
   transport?: PersonaMcpTransport;
   mode?: PersonaExecutionMode;
+}
+
+export interface CreatePersonaMcpSdkServerInput
+  extends CreatePersonaMcpServerDefinitionInput {
+  defaultPersonaId?: string;
 }
 
 export function createPersonaMcpServerDefinition(
@@ -64,4 +81,255 @@ function describeTool(name: PersonaToolName): string {
     case "submit_feedback":
       return "Store user feedback for a run and report whether the feedback pipeline triggered a retry.";
   }
+}
+
+/**
+ * Builds the runtime context that MCP handlers use to resolve persona data and execution policy.
+ */
+export function createPersonaMcpHandlerContext(
+  input: CreatePersonaMcpSdkServerInput = {}
+): PersonaMcpHandlerContext {
+  return {
+    defaultPersonaId: input.defaultPersonaId ?? defaultPersonaId,
+    mode: input.mode ?? "auto"
+  };
+}
+
+/**
+ * Creates the real MCP SDK server with tool and resource handlers wired to the current runtime/store.
+ */
+export function createPersonaMcpSdkServer(
+  input: CreatePersonaMcpSdkServerInput = {}
+): McpServer {
+  const definition = createPersonaMcpServerDefinition(input);
+  const context = createPersonaMcpHandlerContext(input);
+  const server = new McpServer(
+    {
+      name: definition.name,
+      version: definition.version
+    },
+    {
+      instructions:
+        "Use compiled persona memory as the primary context source. Prefer structured memory retrieval over raw evidence."
+    }
+  );
+
+  registerPersonaTools(server, context);
+  registerPersonaResources(server, context);
+
+  return server;
+}
+
+function registerPersonaTools(
+  server: McpServer,
+  context: PersonaMcpHandlerContext
+): void {
+  server.registerTool(
+    "search_memories",
+    {
+      description: describeTool("search_memories"),
+      inputSchema: z.object({
+        personaId: z.string().optional(),
+        query: z.string().min(1),
+        kind: z.enum(memoryKinds).optional(),
+        topK: z.number().int().min(1).max(20).optional()
+      }),
+      outputSchema: z.object({
+        items: z.array(
+          z.object({
+            memoryId: z.string(),
+            kind: z.enum(memoryKinds),
+            summary: z.string(),
+            score: z.number(),
+            confidence: z.number(),
+            matchedTerms: z.array(z.string())
+          })
+        )
+      })
+    },
+    async (args) => createStructuredToolResult(handleSearchMemories(args, context))
+  );
+
+  server.registerTool(
+    "get_memory_evidence",
+    {
+      description: describeTool("get_memory_evidence"),
+      inputSchema: z.object({
+        memoryId: z.string().min(1)
+      }),
+      outputSchema: z.object({
+        memoryId: z.string(),
+        evidence: z.array(
+          z.object({
+            id: z.string(),
+            sourceType: z.string(),
+            channel: z.string(),
+            authorLabel: z.string(),
+            content: z.string(),
+            createdAt: z.string().nullable()
+          })
+        )
+      })
+    },
+    async (args) => createStructuredToolResult(handleGetMemoryEvidence(args, context))
+  );
+
+  server.registerTool(
+    "get_persona_core",
+    {
+      description: describeTool("get_persona_core"),
+      inputSchema: z.object({
+        personaId: z.string().optional()
+      }),
+      outputSchema: z.object({
+        personaId: z.string(),
+        styleRules: z.array(z.string()),
+        decisionRules: z.array(z.string()),
+        values: z.array(z.string()),
+        preferences: z.array(z.string()),
+        selfDescriptions: z.array(z.string())
+      })
+    },
+    async (args) => createStructuredToolResult(handleGetPersonaCore(args, context))
+  );
+
+  server.registerTool(
+    "get_session_summary",
+    {
+      description: describeTool("get_session_summary"),
+      inputSchema: z.object({
+        personaId: z.string().optional(),
+        sessionId: z.string().optional()
+      }),
+      outputSchema: z.object({
+        personaId: z.string(),
+        sessionId: z.string().nullable(),
+        available: z.boolean(),
+        summary: z
+          .object({
+            currentGoal: z.string().nullable(),
+            activeTopics: z.array(z.string()),
+            recentCommitments: z.array(z.string()),
+            updatedAt: z.string().nullable()
+          })
+          .nullable()
+      })
+    },
+    async (args) => createStructuredToolResult(handleGetSessionSummary(args, context))
+  );
+
+  server.registerTool(
+    "submit_feedback",
+    {
+      description: describeTool("submit_feedback"),
+      inputSchema: z.object({
+        personaId: z.string().optional(),
+        query: z.string().min(1),
+        score: z.number().min(0).max(1),
+        reason: z.enum([
+          "missing_memory",
+          "wrong_priority",
+          "too_confident",
+          "style_mismatch",
+          "other"
+        ]),
+        missingAspect: z.string().optional(),
+        note: z.string().optional(),
+        sessionId: z.string().optional()
+      }),
+      outputSchema: z.object({
+        runId: z.string(),
+        retryTriggered: z.boolean(),
+        retryReason: z
+          .enum(["user_feedback", "low_confidence"])
+          .nullable(),
+        finalAttemptNumber: z.number().int(),
+        attemptCount: z.number().int()
+      })
+    },
+    async (args) => createStructuredToolResult(handleSubmitFeedback(args, context))
+  );
+}
+
+function registerPersonaResources(
+  server: McpServer,
+  context: PersonaMcpHandlerContext
+): void {
+  server.registerResource(
+    "persona-core",
+    "persona://default/core",
+    {
+      description: "Default persona core derived from stable long-term memory."
+    },
+    async () =>
+      createJsonResource(
+        "persona://default/core",
+        handleGetPersonaCore({}, context)
+      )
+  );
+
+  server.registerResource(
+    "persona-profile",
+    "persona://default/profile",
+    {
+      description: "Default persona profile summary backed by current long-term memory."
+    },
+    async () =>
+      createJsonResource("persona://default/profile", {
+        personaId: context.defaultPersonaId,
+        executionMode: context.mode,
+        memoryCount: listMemoriesForPersona({
+          personaId: context.defaultPersonaId,
+          client: context.client
+        }).length,
+        core: handleGetPersonaCore({}, context)
+      })
+  );
+
+  server.registerResource(
+    "persona-memory",
+    new ResourceTemplate("persona://memory/{id}", {
+      list: undefined
+    }),
+    {
+      description: "Read a specific compiled memory by id."
+    },
+    async (_uri, variables) => {
+      const memoryId = String(variables.id ?? "");
+      const memory = getMemoryById({
+        id: memoryId,
+        client: context.client
+      });
+
+      if (memory === null) {
+        throw new Error(`Memory not found: ${memoryId}`);
+      }
+
+      return createJsonResource(`persona://memory/${memoryId}`, memory);
+    }
+  );
+}
+
+function createStructuredToolResult<T extends object>(data: T) {
+  return {
+    content: [
+      {
+        type: "text" as const,
+        text: JSON.stringify(data, null, 2)
+      }
+    ],
+    structuredContent: data
+  };
+}
+
+function createJsonResource<T extends object>(uri: string, data: T) {
+  return {
+    contents: [
+      {
+        uri,
+        mimeType: "application/json",
+        text: JSON.stringify(data, null, 2)
+      }
+    ]
+  };
 }

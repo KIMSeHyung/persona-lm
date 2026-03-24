@@ -63,3 +63,4 @@ MCP
 9. reviewed decision seed importer를 SQLite read path와 실제 runtime demo에 연결한다.
 10. MCP 서버 엔트리 포인트를 스캐폴딩한다.
 11. long-term memory `top N` candidate retrieval에 SQLite `FTS5`를 붙인다.
+12. MCP SDK stdio 서버와 최소 tool handler를 실제로 연결한다.
