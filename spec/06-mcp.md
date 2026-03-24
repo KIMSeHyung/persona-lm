@@ -15,6 +15,17 @@
 
 실제로 startup cost가 병목이 되면, 그때 장수 프로세스 기반 HTTP transport를 별도로 추가한다.
 
+## stdio 실행 모드
+초기 구현에서는 stdio MCP 서버를 실행할 때 `--mode` arg로 실행 정책을 고른다.
+
+예:
+- `pnpm mcp:stdio -- --mode dev_feedback`
+- `pnpm mcp:stdio -- --mode auto`
+- `pnpm mcp:stdio -- --mode locked`
+
+이 `mode`는 MCP transport 자체의 종류가 아니라, runtime의 tool orchestration 정책을 고르는 값이다.
+외부 인터페이스는 단순한 enum으로 유지하고, 내부에서는 나중에 richer policy 객체로 해석할 수 있어야 한다.
+
 ## 권장 MCP 구조
 공통 로직과 transport별 엔트리 포인트를 분리한다.
 
@@ -48,6 +59,7 @@ src/mcp/
 - retrieval 전략
 - rerank
 - session policy
+- tool budget 와 retry 정책
 - prompt assembly
 
 `MCP`는 store와 retrieval surface를 외부에 노출하는 계층이다.

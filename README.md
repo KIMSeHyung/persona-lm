@@ -29,6 +29,7 @@ reviewed seed memory를 SQLite에 넣을 때는 `pnpm db:seed`를 사용한다.
 - 타입체크는 `tsc --noEmit`만 사용한다.
 - 프로덕션 빌드는 `tsup`으로 번들한 뒤 plain Node로 실행한다.
 - 소스 코드의 상대 import는 확장자 없이 유지한다.
+- MCP stdio 실행은 `pnpm mcp:stdio -- --mode <dev_feedback|auto|locked>` 형태로 구분한다.
 
 ## 현재 상태
 현재는 프로젝트 bootstrap 단계다.
